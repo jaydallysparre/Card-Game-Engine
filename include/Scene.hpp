@@ -14,14 +14,22 @@
     game/menu logic.
 */
 
-// Alias for State factories; aim to use registration system for State instantiation.
+// alias for State factories; aim to use registration system for State instantiation.
 using StateFactory = std::function<std::unique_ptr<State>()>;
 
 class Scene {
-    std::unordered_map<std::string, StateFactory> factories;
+private:
+    // the currentState to execute
     std::unique_ptr<State> currentState;
+
+protected:
+    /// state factory registry 
+    std::unordered_map<std::string, StateFactory> factories;
+
 public:
-    void run();
+    void run() {
+        currentState->run();
+    }
 
     void changeState(std::string newState) {
         if (!factories.count(newState)) {
