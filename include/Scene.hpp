@@ -49,4 +49,8 @@ public:
 
         currentState = factories[newState]();
     }
+
+    void update() {
+        
+    }
 };

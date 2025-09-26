@@ -10,11 +10,20 @@
     Abstract class that handles creating the window, passing inputs to the controller, scene management.
 */
 
+template <typename ControllerType>
 class Application {
-    std::unique_ptr<Controller> controller;
+protected:
+    ControllerType controller;
     std::unique_ptr<Scene> currentScene;
     EventManager eventManager;
+
+    void coreUpdate() {
+        currentScene->update();
+        controller.update();
+    }
+
 public:
-    Application();
+    Application() : controller(eventManager) {}
     virtual void run() = 0;
+    
 };
