@@ -36,53 +36,62 @@ class Card {
     void PrintCard() const {cout << Suit << " " << Rank;}
 };
 
+// Equality operator for the Card class that will help when removing cards
+bool operator==(const Card& inDeck, const Card& findingCard){
+    return inDeck.GetSuit() == findingCard.GetSuit() && inDeck.GetRank() == findingCard.GetRank();
+}
+
+class CardPool {
+    protected: 
+    vector<Card> cardpool;
+    public:
+    // Default constructor
+    CardPool() {}
+    // Method for adding a card
+    void AddCard(const Card& newcard) {
+        cardpool.push_back(newcard);
+    }
+    // Method for removing a card
+    void RemoveCard(const Card& removecard) {
+        // Find the matching card using the bool operator we defined in the Card class
+        auto TargetCard = find(cardpool.begin(), cardpool.end(), removecard);
+        if (TargetCard != cardpool.end()) {
+            cardpool.erase(TargetCard);
+        }
+    }
+    // Clear or Discard all cards
+    void Clear() {
+        cardpool.clear();
+    }
+
+};
+
 // Class representing deck 
-class Deck {
+class Deck : public CardPool {
     private: 
-    // Building a vector for the deck
-    vector<Card> deck = {};
     // Building vectors for the card types 
     vector<string> Suits = {"H", "D", "C","S"};
     vector<string> Ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
     public:
-    // Default constructor
-    Deck()
-    {}
     // Method for Building decks
     void BuildDeck() {
         // Reset Deck
-        deck.clear();
-
+        cardpool.clear();
         // Two for loops to go through every pairing
         for(const string& s : Suits){
             for(const string& r : Ranks){
-                deck.push_back(Card(s, r));
+                cardpool.push_back(Card(s, r));
             }
         }
     }
     // Method for adding joker 
     void AddJokers() {
-        deck.push_back(Card("Coloured", "Joker"));
-        deck.push_back(Card("NotColoured", "Joker"));
-    }
-    // Method for adding a card
-    void AddCard(string s, string r) {
-        deck.push_back(Card(s, r));
-    }
-    // Method for removing a card
-    void RemoveCard(string s, string r) {
-        auto TargetCard = find_if(deck.begin(), deck.end(), [&](const Card& card) {
-            return card.Suit == s && card.Rank == r;
-        });   
-        // If the card exists in the deck, erase it. 
-        if (TargetCard != deck.end()) {
-            deck.erase(it);
-        }
+        cardpool.push_back(Card("Coloured", "Joker"));
+        cardpool.push_back(Card("NotColoured", "Joker"));
     }
 };
 
-class Hand : public Deck {
-
+class Hand : public CardPool {
 };
 
 class SceneObject {
