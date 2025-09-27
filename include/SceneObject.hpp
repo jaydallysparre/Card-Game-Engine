@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <memory>
 
 using namespace std;
 
@@ -64,42 +65,83 @@ class CardPool {
         cardpool.clear();
     }
 
+    // Print the cards within the vector
+    void PrintCards() const {
+        for(const auto& card : cardpool) {
+            card.PrintCard();
+            cout << " ";
+        }
+        cout << endl;
+    }
+};
+
+// A class that helps the scene objects' location on the screen
+class PositionalSceneObject{
+    protected: 
+    double HorizontalPosition = 0.0;
+    double VerticalPosition = 0.0;
+
+    public:
+    void SetPosition(double x, double y) {
+        HorizontalPosition = x;
+        VerticalPosition = y;
+    }
+
+    void SetHorizontalPosition(double x) {
+        HorizontalPosition = x;
+    }
+
+    void SetVerticalPosition(double y) {
+        VerticalPosition = y;
+    }
 };
 
 // Class representing deck 
-class Deck : public CardPool {
+class Deck : public CardPool, public PositionalSceneObject {
     private: 
     // Building vectors for the card types 
-    vector<string> Suits = {"H", "D", "C","S"};
-    vector<string> Ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+    static const vector<string> Suits;
+    static const vector<string> Ranks;
     public:
     // Method for Building decks
     void BuildDeck() {
         // Reset Deck
-        cardpool.clear();
+        Clear();
         // Two for loops to go through every pairing
         for(const string& s : Suits){
             for(const string& r : Ranks){
-                cardpool.push_back(Card(s, r));
+                AddCard(Card(s, r));
             }
         }
     }
     // Method for adding joker 
     void AddJokers() {
-        cardpool.push_back(Card("Coloured", "Joker"));
-        cardpool.push_back(Card("NotColoured", "Joker"));
+        AddCard(Card("Coloured", "Joker"));
+        AddCard(Card("NotColoured", "Joker"));
     }
 };
 
-class Hand : public CardPool {
+const vector<string> Deck::Suits = {"H", "D", "C","S"};
+const vector<string> Deck::Ranks = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+
+class Hand : public CardPool, public PositionalSceneObject {
+};
+
+class Text : public PositionalSceneObject {
+    private: 
+    vector<string> ScreenText; 
+    public: 
+    void AddText(string newText) {
+        ScreenText.push_back(newText);
+    }
 };
 
 class SceneObject {
-public:
-};
-
-// A class that inherits from scene object that has positional arguments
-class PositionalSceneObject: public SceneObject {
-public: 
-
+    private:
+    // Use smart pointers for better memory allocation
+    vector<unique_ptr<PositionalSceneObject>> Objects;
+    public:
+    void AddObject(unique_ptr<PositionalSceneObject> NewObject) {
+        Objects.push_back(move(NewObject));
+    }
 };
