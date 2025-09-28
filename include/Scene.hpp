@@ -50,7 +50,7 @@ public:
         currentState = factories[newState]();
     }
 
-    void update() {
+    void receiveAndRespond() {
         // get current events, call checks on state
         // if we switch states, run new state
         // forward events to event manager

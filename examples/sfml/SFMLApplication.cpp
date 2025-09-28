@@ -10,7 +10,7 @@ void SFMLApplication::run() {
         handleEvents(event);
 
         // update core components; scene, then controller
-        coreUpdate();
+        runEventRoutines();
 
         // rendering
         window.clear();

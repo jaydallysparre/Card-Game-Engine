@@ -17,8 +17,8 @@ protected:
     std::unique_ptr<Scene> currentScene;
     EventManager eventManager;
 
-    void coreUpdate() {
-        currentScene->update();
+    void runEventRoutines() {
+        currentScene->receiveAndRespond();
         controller.receiveAndRespond();
     }
 
