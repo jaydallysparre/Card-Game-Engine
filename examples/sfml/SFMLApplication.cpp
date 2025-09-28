@@ -26,6 +26,6 @@ void SFMLApplication::handleEvents(sf::Event& event) {
         }
 
         // send to controller; will create game events from inputs
-        controller.handleEvent(event, dt);
+        controller.handleSFMLEvent(event, dt);
     }
 }

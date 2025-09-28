@@ -19,11 +19,10 @@ protected:
 
     void coreUpdate() {
         currentScene->update();
-        controller.update();
+        controller.receiveAndRespond();
     }
 
 public:
     Application() : controller(eventManager) {}
     virtual void run() = 0;
-    
 };

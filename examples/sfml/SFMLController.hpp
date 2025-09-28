@@ -10,9 +10,10 @@ class SFMLController : public Controller {
 public:
     SFMLController(EventManager& em) : Controller(em) {}
 
-    void handleEvent(sf::Event& event, float dt) {
+    void handleSFMLEvent(sf::Event& event, float dt) {
         switch (event.type) {
             case sf::Event::MouseButtonPressed:
+                // probably make a distinction between pressing and held here for buttons etc.
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     activeDrag = true;
                     // pick object closest to cursor / with highest z index
@@ -40,4 +41,10 @@ public:
         // for Object in however we store objects
         // renderer.renderObject()
     }
+
+    /*
+        Event response functions
+    */
+
+    //void movedCard(int cardId, int fromID, int toID) override;
 };

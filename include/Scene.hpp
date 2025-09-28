@@ -51,6 +51,8 @@ public:
     }
 
     void update() {
-        
+        // get current events, call checks on state
+        // if we switch states, run new state
+        // forward events to event manager
     }
 };
