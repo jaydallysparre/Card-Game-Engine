@@ -95,7 +95,7 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
     // Method for Building decks
     void buildDeck() {
         // Reset Deck
-        Clear();
+        clear();
         // Two for loops to go through every pairing
         for(const std::string& s : SUITS){
             for(const std::string& r : RANKS){
