@@ -5,9 +5,10 @@
 #include <random>
 #include <algorithm>
 #include <memory>
+#include "ObjectPool.hpp"
 
 // The card class
-class Card {
+class Card : public, PoolObject {
     // Two 
     private:
     std::string suit;
@@ -31,6 +32,9 @@ class Card {
     std::string getSuit() const {return suit;}
     // Method to read Rank
     std::string getRank() const {return rank;}
+    // ObjectPool functions
+    bool faceUp{false};
+    ObjType type() const override {return ObjType::Card;}
 };
 
 // Equality operator for the Card class that will help when removing cards
@@ -63,22 +67,26 @@ class CardPool {
 };
 
 // A class that helps the scene objects' location on the screen
-class PositionalSceneObject{
+class PositionalSceneObject, public, PoolObject{
     protected: 
     double horizontalPosition = 0.0;
     double verticalPosition = 0.0;
 
     public:
     void setPosition(double x, double y) {
-        if(x > 0 && x < 1 && y > 0 && y < 1){
-            horizontalPosition = x;
-            verticalPosition = y;
-        }
+        if (x < 0)
+        {horizontalPosition = 0;}
+        if (x > 1)
+        {horizontalPosition = 1;}
+        if (y < 0)
+        {verticalPosition = 0;}
+        if (y > 1)
+        {verticalPosition = 1;}
     }
 };
 
 // Class representing deck 
-class Deck : public CardPool, public PositionalSceneObject {
+class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
     private: 
     // Building vectors for the card types 
     static const std::vector<std::string> SUITS;
@@ -111,19 +119,25 @@ class Deck : public CardPool, public PositionalSceneObject {
         auto rng = std::default_random_engine {};
         std::shuffle(std::begin(cardPool), std::end(cardPool), rng);
     }
+    // Extra functions for ObjectPool
+    ObjType type() const override {return ObjType::Deck;}
 };
 
 const std::vector<std::string> Deck::SUITS = {"H", "D", "C","S"};
 const std::vector<std::string> Deck::RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
-class Hand : public CardPool, public PositionalSceneObject {
+class Hand : public CardPool, public PositionalSceneObject, public PoolObject {
+    // Method for ObjectPool
+    ObjType type() const override {return ObjType::Hand;}
 };
 
-class Text : public PositionalSceneObject {
+class Text : public PositionalSceneObject, public PoolObject {
     private: 
     std::vector<std::string> screenText; 
     public: 
     void addText(std::string newText) {
         screenText.push_back(newText);
     }
+    // Method for ObjectPool
+    ObjType type() const override {return ObjType::Text;}
 };
