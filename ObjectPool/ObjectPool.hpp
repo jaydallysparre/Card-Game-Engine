@@ -5,7 +5,7 @@
 
 using ObjectId = uint32_t;
 
-enum class ObjType : uint8_t {Card, Deck, Hand, Button, PositionalString, Menu, Player};
+enum class ObjType : uint8_t {Card, Deck, Hand, Button, PositionalString, Menu, Player, Text};
 
 //Add tags (use constexpr as it will compute at compile step)
 constexpr uint32_t TAG_USABLE = 1u << 0;

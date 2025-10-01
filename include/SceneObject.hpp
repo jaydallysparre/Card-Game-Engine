@@ -5,10 +5,10 @@
 #include <random>
 #include <algorithm>
 #include <memory>
-#include "ObjectPool.hpp"
+#include "ObjectPool/ObjectPool.hpp"
 
 // The card class
-class Card : public, PoolObject {
+class Card : public PoolObject {
     // Two 
     private:
     std::string suit;
@@ -67,7 +67,7 @@ class CardPool {
 };
 
 // A class that helps the scene objects' location on the screen
-class PositionalSceneObject, public, PoolObject{
+class PositionalSceneObject : public PoolObject{
     protected: 
     double horizontalPosition = 0.0;
     double verticalPosition = 0.0;
