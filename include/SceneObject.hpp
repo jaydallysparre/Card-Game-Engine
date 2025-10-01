@@ -61,7 +61,7 @@ class CardPool {
         }
     }
     // Clear or Discard all cards
-    void Clear() {
+    void clear() {
         cardPool.clear();
     }
 };
