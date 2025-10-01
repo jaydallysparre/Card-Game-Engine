@@ -127,13 +127,3 @@ class Text : public PositionalSceneObject {
         screenText.push_back(newText);
     }
 };
-
-class SceneObject {
-    private:
-    // Use smart pointers for better memory allocation
-    std::vector<std::unique_ptr<PositionalSceneObject>> objects;
-    public:
-    void addObject(std::unique_ptr<PositionalSceneObject> newObject) {
-        objects.push_back(std::move(newObject));
-    }
-};
