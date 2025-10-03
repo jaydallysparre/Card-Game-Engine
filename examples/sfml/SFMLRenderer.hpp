@@ -1,8 +1,54 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <unordered_map>
+#include <string>
+#include "RenderPosition.hpp"
+#include "SceneObject.hpp"
 
 class SFMLRenderer {
-public:
+    const float CARDSCALE = 0.25;
+    std::unordered_map<std::string, sf::Texture> textureMap;
+    const std::string path = "examples/sfml/card-png/";
+    const std::vector<std::string> SUITS = {"H", "D", "C","S"};
+    const std::vector<std::string> RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
+    RenderPosition& positionHandler;
+public:
+    SFMLRenderer(RenderPosition& renderPos) : positionHandler(renderPos) {
+        for (const std::string& s : SUITS) {
+            for (const std::string& r : RANKS) {
+                std::string key = r + s; 
+                std::string filepath = path + key + ".png";
+            
+                if (!textureMap[key].loadFromFile(filepath)) {
+                    std::cerr << "Failed to load texture: " << filepath << '\n';
+                }
+
+                textureMap[key].setSmooth(true);
+            }
+        }
+    }
+
+    void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID) {
+        Card topCard = deck->topCard();
+        std::pair<double, double> currPos = positionHandler.getPos(ID);
+        sf::Vector2f sfmlPos = {static_cast<float>(currPos.first) * window.getSize().x, static_cast<float>(currPos.second) * window.getSize().y};
+        std::string cardKey = topCard.getRank() + topCard.getSuit();
+
+        if (!textureMap.count(cardKey)) {
+            std::cerr << "Card texture could not be retrieved from map\n";
+            return; 
+        }
+
+        sf::Sprite cardSprite(textureMap[cardKey]);
+
+        sf::Vector2u texSize = textureMap[cardKey].getSize();
+
+        cardSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f); // center-based positioning
+        cardSprite.setScale(0.25, 0.25);
+        cardSprite.setPosition(sfmlPos);
+
+        window.draw(cardSprite);
+    }
 };

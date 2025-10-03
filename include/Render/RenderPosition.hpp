@@ -37,6 +37,13 @@ private:
         objectPos[ID].second = animStartPos[ID].second + (animWishPos[ID].second - animStartPos[ID].second) * ease;
     }
 
+    void cleanID(int ID) {
+        animStartPos.erase(ID);
+        animWishPos.erase(ID);
+        elapsed.erase(ID);
+        duration.erase(ID);
+    }
+
 public:
     void registerObjectPos(int ID, double x, double y) {
         objectPos[ID] = {x, y};
@@ -50,8 +57,7 @@ public:
 
     void setPos(int ID, double x, double y) {
         objectPos[ID] = {x, y};
-        animStartPos.erase(ID);
-        animWishPos.erase(ID);
+        cleanID(ID);
     }
     
     void update(double dt) {
@@ -62,10 +68,7 @@ public:
 
         // clean-up finished animations
         for (int ID: finishedAnims) {
-            animStartPos.erase(ID);
-            animWishPos.erase(ID);
-            elapsed.erase(ID);
-            duration.erase(ID);
+            cleanID(ID);
         }
     }
     

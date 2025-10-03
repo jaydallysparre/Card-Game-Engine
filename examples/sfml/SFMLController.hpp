@@ -1,14 +1,25 @@
 #pragma once
 
+#include <utility>
 #include <SFML/Graphics.hpp>
 #include "Controller.hpp"
+#include "RenderController.hpp"
 #include "SFMLRenderer.hpp"
+#include "SceneObject.hpp"
 
-class SFMLController : public Controller {
+class SFMLController : public RenderController {
     SFMLRenderer renderer;
     bool activeDrag = false;
 public:
-    SFMLController(EventManager& em) : Controller(em) {}
+    SFMLController(EventManager& em) : RenderController(em), renderer(positionHandler) {
+        // temp hacks
+        ObjectPool* newPool = new ObjectPool();
+        objPool.p = newPool;
+        std::unique_ptr<Deck> deck = std::make_unique<Deck>();
+        deck->buildDeck();
+        int ID = newPool->add(std::move(deck));
+        positionHandler.registerObjectPos(ID, 0.5, 0.5);
+    }
 
     void handleSFMLEvent(sf::Event& event, float dt) {
         switch (event.type) {
@@ -37,9 +48,24 @@ public:
         }
     }
 
-    void render(sf::Window& window, float dt) {
-        // for Object in however we store objects
-        // renderer.renderObject()
+    // temp hack
+    float dtSum = 0;
+
+    // Render function; get relevant objects, and ID's, forward to the renderer
+    void render(sf::RenderWindow& window, float dt) {
+        positionHandler.update(dt);
+
+        // move testing
+        dtSum += dt;
+        if (dtSum > 2.0) {
+            positionHandler.setWishPos(1, 0.2, 0.2, 500.0);
+        }
+
+        std::vector<ObjectId> decks = objPool.ofType(ObjType::Deck);
+        for (int deckID : decks) {
+            const Deck* deck = dynamic_cast<const Deck*>(objPool.getPointer(deckID));
+            renderer.renderDeck(window, deck, deckID);
+        }
     }
 
     /*
