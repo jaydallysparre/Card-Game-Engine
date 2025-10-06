@@ -17,8 +17,17 @@ protected:
     std::unique_ptr<Scene> currentScene;
     EventManager eventManager;
 
+    //void changeScene(std::unique_ptr<Scene> newScene) {
+        // EventManager.reset()
+        //currentScene = newScene;
+        // Controller.init(currentScene->fetchObjectPoolRef())
+        
+    //}
+
     void runEventRoutines() {
-        currentScene->receiveAndRespond();
+        if (!controller.isBusy()) {
+            currentScene->receiveAndRespond();
+        }
         controller.receiveAndRespond();
     }
 

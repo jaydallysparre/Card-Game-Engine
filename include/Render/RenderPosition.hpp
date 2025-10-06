@@ -37,6 +37,7 @@ private:
         objectPos[ID].second = animStartPos[ID].second + (animWishPos[ID].second - animStartPos[ID].second) * ease;
     }
 
+    // erase animation relevant ID's
     void cleanID(int ID) {
         animStartPos.erase(ID);
         animWishPos.erase(ID);
@@ -45,21 +46,23 @@ private:
     }
 
 public:
+    // register object with 
     void registerObjectPos(int ID, double x, double y) {
         objectPos[ID] = {x, y};
-    }
-    
-    void setWishPos(int ID, double x, double y, double dur) {
-        animStartPos[ID] = objectPos[ID];
-        animWishPos[ID] = {x, y};
-        duration[ID] = dur;
     }
 
     void setPos(int ID, double x, double y) {
         objectPos[ID] = {x, y};
         cleanID(ID);
     }
+
+    void setWishPos(int ID, double x, double y, double dur) {
+        animStartPos[ID] = objectPos[ID];
+        animWishPos[ID] = {x, y};
+        duration[ID] = dur;
+    }
     
+    // update all elapsed times, clean up animations if finished
     void update(double dt) {
         for (auto [ID, wishPos]: animWishPos) {
             elapsed[ID] += dt;

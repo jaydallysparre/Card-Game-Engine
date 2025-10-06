@@ -21,6 +21,10 @@ public:
         positionHandler.registerObjectPos(ID, 0.5, 0.5);
     }
 
+    virtual bool isBusy() override {
+        return false;
+    }
+
     void handleSFMLEvent(sf::Event& event, float dt) {
         switch (event.type) {
             case sf::Event::MouseButtonPressed:
