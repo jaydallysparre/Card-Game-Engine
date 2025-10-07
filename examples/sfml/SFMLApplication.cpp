@@ -7,7 +7,7 @@ void SFMLApplication::run() {
 
         // handle SFML events
         sf::Event event;
-        handleEvents(event);
+        handleEvents(window, event);
 
         // update core components; scene, then controller
         runEventRoutines();
@@ -19,7 +19,7 @@ void SFMLApplication::run() {
     }
 }
 
-void SFMLApplication::handleEvents(sf::Event& event) {
+void SFMLApplication::handleEvents(sf::RenderWindow& window, sf::Event& event) {
     while (window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
             window.close();
@@ -28,6 +28,6 @@ void SFMLApplication::handleEvents(sf::Event& event) {
         }
 
         // send to controller; will create game events from inputs
-        controller.handleSFMLEvent(event, dt);
+        controller.handleSFMLEvent(window, event, dt);
     }
 }

@@ -7,7 +7,8 @@
 #include "SceneObject.hpp"
 
 class SFMLRenderer {
-    const float CARDSCALE = 0.25;
+    const float CARD_WIDTH = 120.0f;
+    const float CARD_HEIGHT = 160.0f;
 
     // load textures into textureMap to save creating textures every frame
     std::unordered_map<std::string, sf::Texture> textureMap;
@@ -18,6 +19,9 @@ class SFMLRenderer {
     // vectors used to generate card combinations at instantiation
     const std::vector<std::string> SUITS = {"H", "D", "C","S"};
     const std::vector<std::string> RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+
+    std::unordered_map<int, sf::FloatRect> cardBounds;
+    std::unordered_map<int, int> parentDecks;
 
     RenderPosition& positionHandler;
 public:
@@ -41,16 +45,23 @@ public:
     void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID) {
         auto topCards = deck->top2Cards();
 
+        // render the second card below the top card.
+        if (topCards.second)
+            renderCard(window, *topCards.second, (*topCards.second).id);
+
         if (topCards.first)
             renderCard(window, *topCards.first, (*topCards.first).id);
         
-        if (topCards.second)
-            renderCard(window, *topCards.second, (*topCards.second).id);
     }
 
     void renderCard(sf::RenderWindow& window, Card card, int ID) {
         std::pair<double, double> currPos = positionHandler.getPos(ID);
-        sf::Vector2f sfmlPos = {static_cast<float>(currPos.first) * window.getSize().x, static_cast<float>(currPos.second) * window.getSize().y};
+
+        // calculate correct sfml position using normalized coordinates
+        sf::Vector2f sfmlPos = {static_cast<float>(currPos.first) * window.getSize().x, 
+                                static_cast<float>(currPos.second) * window.getSize().y};
+
+        // get card key for accessing texture
         std::string cardKey = card.getRank() + card.getSuit();
 
         if (!textureMap.count(cardKey)) {
@@ -59,13 +70,32 @@ public:
         }
 
         sf::Sprite cardSprite(textureMap[cardKey]);
-
         sf::Vector2u texSize = textureMap[cardKey].getSize();
 
+        // scale render size to CARD_WIDTH, CARD_HEIGHT
+        sf::Vector2f scaledSizes = {CARD_WIDTH/texSize.x, CARD_HEIGHT/texSize.y};
+        cardSprite.setScale(scaledSizes);
         cardSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f); // center-based positioning
-        cardSprite.setScale(0.25, 0.25);
         cardSprite.setPosition(sfmlPos);
+
+        // register the card bounds for mouse collision detection
+        cardBounds[ID] = cardSprite.getGlobalBounds();
 
         window.draw(cardSprite);
     }
+
+    std::optional<int> getCardAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+
+        for (const auto& [ID, rect]: cardBounds) {
+            if (rect.contains(worldPos))
+                return ID;
+        }
+
+        return std::nullopt;
+    }
+
+    /*std::optional<int> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+
+    }*/
 };
