@@ -99,5 +99,8 @@ public:
         Event response functions
     */
 
-    //void movedCard(int cardId, int fromID, int toID) override;
+    void movedCard(int cardID, int fromID, int toID) override {
+        auto toPos = positionHandler.getPos(toID);
+        positionHandler.setWishPos(cardID, toPos.first, toPos.second, 5.0);
+    }
 };

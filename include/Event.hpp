@@ -86,7 +86,7 @@ struct ToggledObject : AuthoritativeEvent {
 struct FlippedCard : AuthoritativeEvent {
     const int ID;
 
-    FlippedCard(int ID) :AuthoritativeEvent(AuthEvent::FlippedCard), ID(ID) {}
+    FlippedCard(int ID) : AuthoritativeEvent(AuthEvent::FlippedCard), ID(ID) {}
 };
 
 /*
