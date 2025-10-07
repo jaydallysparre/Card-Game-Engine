@@ -18,6 +18,7 @@ class HiLoScene: public Scene{
   int hL = 0;
   Card currentCard;
   int playerScore = 0;
+  GameState currentState;
 
   public:
   // Method to set the currentCard
@@ -28,12 +29,25 @@ class HiLoScene: public Scene{
   Card returnCurrentCard() {
     return currentCard;
   }
+  // Method to read player score
+  int getPlayerScore() {
+    return playerScore;
+  }
+  // Method to raise player score
   void incrementPlayerScore() {
     playerScore++;
   }
+  // Method to let the state functions change the state
+  void setGameState(GameState newState) {
+    currentState = newState;
+  }
+  // Read current state
+  GameState readGameState() {
+    return currentState;
+  }
 };
 
-GameState state_showCard(HiLoScene& sceneName){
+void state_showCard(HiLoScene& sceneName){
   if (sceneName.isEmpty()) {   // I need to know how how we're going to set the deck id or something so I can replace sceneName if needed.
     return GameState::SHOW_SCORE;
   }
@@ -41,21 +55,21 @@ GameState state_showCard(HiLoScene& sceneName){
     Card topCard = sceneName.topCard(); // Same here how should I get the deck to get the topcard?
     // render topCard for the player
     sceneName.setCurrentCard(topCard);
-    return GameState::HIGH_LOW;
+    sceneName.setGameState(GameState::HIGH_LOW);
   }
 }
 
-GameState state_showScore(HiLoScene& sceneName){
+void state_showScore(HiLoScene& sceneName){
   // Render the game score for the palyer
-  return GameState::END_GAME;
+  sceneName.setGameState(GameState::END_GAME);
 }
 
-GameState state_highLow(HiLoScene& sceneName){
+void state_highLow(HiLoScene& sceneName){
   // Ask the player to choose between high or low, and assign 1 if high, 0 if low to hL, defined as a variable in scene to keep track of the player's decision
-  return GameState::CALCULATE;
+  sceneName.setGameState(GameState::CALCULATE);
 }
 
-GameState state_calculate(HiLoScene& sceneName){
+void state_calculate(HiLoScene& sceneName){
 
   Card firstCard = sceneName.returnCurrentCard();
   Card secondCard = sceneName.topCard(); // Again, need to know how the deck is going to be set to properly use topcard();
@@ -65,13 +79,13 @@ GameState state_calculate(HiLoScene& sceneName){
 
   if(secondCardScore > firstCardScore) { // NEED AN AND CASE WHERE WE CALL THE HIGH OR LOW FROM PLAYER INPUT
     sceneName.incrementPlayerScore();
-    return GameState::SHOW_CARD;
+    sceneName.setGameState(GameState::SHOW_CARD);
   }
   else if(secondCardScore < firstCardScore) { // NEED AN AND CASE WHERE WE CALL THE HIGH OR LOW FROM PLAYER INPUT
     sceneName.incrementPlayerScore();
-    return GameState::SHOW_CARD;
+    sceneName.setGameState(GameState::SHOW_CARD);
   }
    else{
-    return GameState::SHOW_CARD;
+    sceneName.setGameState(GameState::SHOW_CARD);
   }
 } 
