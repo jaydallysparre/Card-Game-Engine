@@ -142,6 +142,18 @@ const std::vector<std::string> Deck::SUITS = {"H", "D", "C","S"};
 const std::vector<std::string> Deck::RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
 class Hand : public CardPool, public PositionalSceneObject, public PoolObject {
+    private:
+    // Player's score
+    int score = 0;
+    public:
+    // Read score
+    int readScore() {
+        return score;
+    }
+    // Increment score
+    void incrementScore() {
+        score++;
+    }
     // Method for ObjectPool
     ObjType type() const override {return ObjType::Hand;}
 };

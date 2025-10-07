@@ -49,7 +49,7 @@ class HiLoScene: public Scene{
 
 void state_showCard(HiLoScene& sceneName){
   if (sceneName.isEmpty()) {   // I need to know how how we're going to set the deck id or something so I can replace sceneName if needed.
-    return GameState::SHOW_SCORE;
+    sceneName.setGameState(GameState::SHOW_SCORE);
   }
   else {
     Card topCard = sceneName.topCard(); // Same here how should I get the deck to get the topcard?
