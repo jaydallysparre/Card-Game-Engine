@@ -64,6 +64,10 @@ class CardPool {
     void clear() {
         cardPool.clear();
     }
+    // Method to check if hand / deck is empty or not
+    bool isEmpty() {
+        return cardPool.empty();
+    }
 };
 
 // A class that helps the scene objects' location on the screen
@@ -108,11 +112,22 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
         addCard(Card("Coloured", "Joker"));
         addCard(Card("NotColoured", "Joker"));
     }
-    // Return the top card of the vector 
+    // Return the top card of the vector. This method removes the top card.
+    // Removed the if statement that checks if the vector is empty because it's already considered when using this method.
     Card topCard() {
-        if(cardPool.size() != 0){
-            return cardPool.back();
-        }
+        Card topMostCard = cardPool.back();
+        cardPool.pop_back();
+        return topMostCard;
+    }
+    // HiLo game scoring system by card order. Can be moved to other places.
+    int cardScore(Card& card) {
+        auto suitIterator = std::find(SUITS.begin(), SUITS.end(), card.getSuit());
+        auto rankIterator = std::find(RANKS.begin(), RANKS.end(), card.getRank());
+
+        int suitValue = std::distance(SUITS.begin(), suitIterator);
+        int rankValue = std::distance(RANKS.begin(), rankIterator);
+
+        return suitValue*13 + rankValue;
     }
     // Shuffle the vector
     void shuffle() {
