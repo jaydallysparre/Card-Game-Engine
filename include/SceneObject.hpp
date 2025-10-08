@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <memory>
 #include <optional>
-#include "ObjectPool.hpp"
+#include "PoolObject.hpp"
 
 // The card class
 class Card : public PoolObject {
