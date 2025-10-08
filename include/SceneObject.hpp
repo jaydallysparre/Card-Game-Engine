@@ -130,7 +130,8 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
 
     // Shuffle the vector
     void shuffle() {
-        auto rng = std::default_random_engine {};
+        std::random_device rand;
+        auto rng = std::default_random_engine {rand()};
         std::shuffle(std::begin(cardPool), std::end(cardPool), rng);
     }
     // Extra functions for ObjectPool

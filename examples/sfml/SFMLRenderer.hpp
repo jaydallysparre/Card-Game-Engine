@@ -21,8 +21,6 @@ class SFMLRenderer {
     const std::vector<std::string> RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
     std::unordered_map<int, sf::FloatRect> cardBounds;
-    std::unordered_map<int, int> parentDecks;
-
     RenderPosition& positionHandler;
 public:
     SFMLRenderer(RenderPosition& renderPos) : positionHandler(renderPos) {
@@ -95,7 +93,7 @@ public:
         return std::nullopt;
     }
 
-    /*std::optional<int> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
-
-    }*/
+    std::optional<int> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+    }
 };
