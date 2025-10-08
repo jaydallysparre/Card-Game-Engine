@@ -9,7 +9,7 @@
 #include "State.hpp"
 #include "EventManager.hpp"
 #include "SceneObject.hpp"
-#include "ObjectPool/ObjectPoolViews.hpp"
+#include "ObjectPoolViews.hpp"
 
 
 /*
