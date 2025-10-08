@@ -18,25 +18,24 @@ using SceneFactory = std::function<std::unique_ptr<Scene>(EventManager&)>;
 template <typename ControllerType>
 class Application {
 protected:
-        // ControllerType controller;
-    std::unique_ptr<Controller> controller_;
+    ControllerType controller;
     std::unique_ptr<Scene> currentScene;
     std::optional<SceneFactory> pending;
-    EventManager& eventManager;
+    EventManager eventManager;
 
     void runEventRoutines() {
         if (!controller.isBusy()) {
             currentScene->receiveAndRespond();
         }
-        controller_.receiveAndRespond();
+        controller.receiveAndRespond();
     }
 
     void attatchControllerToCurrent() {
-        controller_->attachPool(currentScene->getControllerView());
+        controller->attachPool(currentScene->getControllerView());
     }
 
 public:
-    Application(EventManager& em, std::unique_ptr<Controller> controller) : controller_(std::move(controller)), eventManager(em) {}
+    Application() : controller(eventManager) {}
 
     void setInitialScene(SceneFactory f) {
         currentScene = f(eventManager);

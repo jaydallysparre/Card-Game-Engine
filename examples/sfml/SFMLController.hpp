@@ -21,7 +21,7 @@ public:
     SFMLController(EventManager& em) : RenderController(em), renderer(positionHandler) {
         // temp hacks
         ObjectPool* newPool = new ObjectPool();
-        objPool.p = newPool;
+        poolView_.p = newPool;
         std::unique_ptr<Deck> deck = std::make_unique<Deck>();
         deck->buildDeck();
         int ID = newPool->add(std::move(deck));
@@ -88,9 +88,9 @@ public:
         positionHandler.update(dt);
 
         // grab all decks from the object pool and render them.
-        std::vector<ObjectId> decks = objPool.ofType(ObjType::Deck);
+        std::vector<ObjectId> decks = poolView_.ofType(ObjType::Deck);
         for (int deckID : decks) {
-            const Deck* deck = dynamic_cast<const Deck*>(objPool.getPointer(deckID));
+            const Deck* deck = dynamic_cast<const Deck*>(poolView_.getPointer(deckID));
             renderer.renderDeck(window, deck, deckID);
         }
     }

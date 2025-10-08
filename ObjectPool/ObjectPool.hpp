@@ -3,8 +3,6 @@
 #include <memory>
 #include <vector>
 
-#include "SceneObject.hpp"
-
 using ObjectId = uint32_t;
 
 enum class ObjType : uint8_t {Card, Deck, Hand, Button, PositionalString, Menu, Player, Text};
@@ -50,6 +48,7 @@ public:
     void addTag(ObjectId id, uint32_t tag) { if (auto* o = getPointer(id)) o->tags |= tag; };
     void rmTag(ObjectId id, uint32_t tag) { if (auto* o = getPointer(id)) o->tags &= ~tag; };
     
+    /*
     void setActivePlayer(ObjectId playerId) { activePlayer = playerId; }
     void setPlayerHand(ObjectId playerId, ObjectId handId) {
         if (auto* p = getPointer(playerId)) if (p->type()==ObjType::Player) {
@@ -70,7 +69,7 @@ public:
         if (!p || p->type() != ObjType::Player) return 0;
         auto* pl = static_cast<Player*>(p);
         return pl->hand; 
-    }
+    }*/
 
     //check if match some of the tags
     bool hasAnyTag(ObjectId id, uint32_t tag) const {
