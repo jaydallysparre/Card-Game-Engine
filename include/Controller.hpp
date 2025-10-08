@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EventManager.hpp"
+#include "ObjectPool/ObjectPoolViews.hpp"
 
 /*
     Controller class
@@ -10,6 +11,7 @@
 class Controller {
     EventManager& em;
 protected:
+    ObjectPoolControllerView poolView_{};
     // event response functions
     // implemented empty to make overriding optional; controller may decide not to implement.
     virtual void movedCard(int cardID, int fromID, int toID) {}
@@ -21,6 +23,8 @@ protected:
 public:
     Controller(EventManager& em) : em(em) {}
 
+    // Application call after scene switch
+    void attachPool(const ObjectPoolControllerView& view) { poolView_ = view; }
     // receive and respond to events
     void receiveAndRespond();
 };
