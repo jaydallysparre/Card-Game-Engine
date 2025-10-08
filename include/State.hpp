@@ -17,7 +17,11 @@ struct Substate {
     virtual bool handle(Scene&, const Event&) = 0;
 };
 
+#include <vector>
+
 class State {
+private:
+    
 public:
     virtual void run() = 0;
 private:

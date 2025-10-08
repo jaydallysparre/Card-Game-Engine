@@ -10,6 +10,7 @@ enum class AuthEvent {
     MovedCard, 
     CreatedObject, 
     DisabledObject, 
+    MovedObject,
     Shuffled, 
     ToggledObject, 
     FlippedCard
@@ -49,14 +50,24 @@ struct MovedCard : AuthoritativeEvent {
 
 struct CreatedObject : AuthoritativeEvent {
     const int ID;
+    const double x;
+    const double y;
 
-    CreatedObject(int ID) : AuthoritativeEvent(AuthEvent::CreatedObject), ID(ID) {}
+    CreatedObject(int ID) : AuthoritativeEvent(AuthEvent::CreatedObject), ID(ID), x(x), y(y) {}
 };
 
 struct DisabledObject : AuthoritativeEvent {
     const int ID;
 
     DisabledObject(int ID) : AuthoritativeEvent(AuthEvent::DisabledObject), ID(ID) {}
+};
+
+struct MovedObject : AuthoritativeEvent {
+    const int ID;
+    const double x;
+    const double y;
+
+    MovedObject(int ID, double x, double y) : AuthoritativeEvent(AuthEvent::MovedObject), ID(ID), x(x), y(y) {}
 };
 
 struct Shuffled : AuthoritativeEvent {
@@ -75,7 +86,7 @@ struct ToggledObject : AuthoritativeEvent {
 struct FlippedCard : AuthoritativeEvent {
     const int ID;
 
-    FlippedCard(int ID) :AuthoritativeEvent(AuthEvent::FlippedCard), ID(ID) {}
+    FlippedCard(int ID) : AuthoritativeEvent(AuthEvent::FlippedCard), ID(ID) {}
 };
 
 /*

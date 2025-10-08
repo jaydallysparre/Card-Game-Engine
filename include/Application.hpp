@@ -25,7 +25,9 @@ protected:
     EventManager& eventManager;
 
     void runEventRoutines() {
-        currentScene->receiveAndRespond();
+        if (!controller.isBusy()) {
+            currentScene->receiveAndRespond();
+        }
         controller_.receiveAndRespond();
     }
 

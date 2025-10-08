@@ -14,5 +14,5 @@ public:
 
     void run() override;
 
-    void handleEvents(sf::Event& event);
+    void handleEvents(sf::RenderWindow& window, sf::Event& event);
 };
