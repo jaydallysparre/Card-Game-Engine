@@ -1,7 +1,7 @@
 #include "Controller.hpp"
 
 void Controller::init(ObjectPoolControllerView NewObjPool) {
-    objPool = NewObjPool;
+    poolView_ = NewObjPool;
 }
 
 void Controller::receiveAndRespond() {
