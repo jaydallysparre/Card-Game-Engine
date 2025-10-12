@@ -45,10 +45,10 @@ public:
 
         // render the second card below the top card.
         if (topCards.second)
-            renderCard(window, *topCards.second, (*topCards.second).id);
+            renderCard(window, *topCards.second, (*topCards.second).getId());
 
         if (topCards.first)
-            renderCard(window, *topCards.first, (*topCards.first).id);
+            renderCard(window, *topCards.first, (*topCards.first).getId());
         
     }
 

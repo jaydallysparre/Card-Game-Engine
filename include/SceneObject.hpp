@@ -14,17 +14,20 @@ class Card : public PoolObject {
     private:
     std::string suit;
     std::string rank;
+    ObjectId id;
+    ObjectId parentId;
 
     public: 
     // Default Constructor
     Card()
-        : suit(""), rank("") // Initializer list
+        : suit(""), rank(""), id() // Initializer list
     {}
 
     Card(std::string s, std::string r)
         : suit(s), rank(r)
     {}
-
+    // Method to set parent's id of card
+    void setParent(ObjectId id) {parentId = id;}
     // Method to set the suit
     void setSuit(std::string s) {suit = s;}
     // Method to set the Rank
@@ -33,6 +36,10 @@ class Card : public PoolObject {
     std::string getSuit() const {return suit;}
     // Method to read Rank
     std::string getRank() const {return rank;}
+    // Method to get card's id
+    ObjectId getId() const {return id;}
+    // Method to get parent's id
+    ObjectId getParentId() const {return parentId;}
     // ObjectPool functions
     bool faceUp{false};
     ObjType type() const override {return ObjType::Card;}
@@ -89,7 +96,16 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
     // Building vectors for the card types 
     static const std::vector<std::string> SUITS;
     static const std::vector<std::string> RANKS;
+    std::vector<ObjectId> cards;
     public:
+    // Add card's id
+    void addCardId(ObjectId cardId) {
+        cards.push_back(cardId);
+    }
+    // Remove card's id
+    void removeCardId(ObjectId cardId) {
+        cards.erase(std::remove(cards.begin(), cards.end(), cardId), cards.end());
+    }
     // Method for Building decks
     void buildDeck() {
         // Reset Deck
@@ -139,8 +155,13 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
 };
 
 class Hand : public CardPool, public PositionalSceneObject, public PoolObject {
+private:
     // store cards id
     std::vector<ObjectId> cards;
+public:
+    void addCardId(ObjectId cardId) {cards.push_back(cardId);}
+    void removeCardId(ObjectId cardId) {cards.erase(std::remove(cards.begin(), cards.end(), cardId), cards.end());}
+    const std::vector<ObjectId>& getCards() const {return cards;}
     // Method for ObjectPool
     ObjType type() const override {return ObjType::Hand;}
 };
