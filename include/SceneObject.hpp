@@ -62,6 +62,10 @@ class CardPool {
     void clear() {
         cardPool.clear();
     }
+    // Method to check if hand / deck is empty or not
+    bool isEmpty() {
+        return cardPool.empty();
+    }
 };
 
 // A class that helps the scene objects' location on the screen
