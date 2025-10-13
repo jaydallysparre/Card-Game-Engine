@@ -13,20 +13,11 @@ class SFMLController : public RenderController {
     // variables for dragging cards
     bool activeDrag = false;
     int currentDragID = -1;
-    sf::Vector2i originalPos;
 
     // boolean for isBusy()
     bool busy = false;
 public:
-    SFMLController(EventManager& em) : RenderController(em), renderer(positionHandler) {
-        // temp hacks
-        ObjectPool* newPool = new ObjectPool();
-        poolView_.p = newPool;
-        std::unique_ptr<Deck> deck = std::make_unique<Deck>();
-        deck->buildDeck();
-        int ID = newPool->add(std::move(deck));
-        //positionHandler.registerObjectPos(ID, 1.0, 1.0);
-    }
+    SFMLController(EventManager& em) : RenderController(em), renderer(positionHandler, poolView_) {}
 
     virtual bool isBusy() override {
         return busy;
@@ -37,33 +28,25 @@ public:
 
         switch (event.type) {
             case sf::Event::MouseButtonPressed:
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    activeDrag = true;
-                    busy = true;
-
-                    auto cardIDAtPos = renderer.getCardAtPos(window, mousePos);
-
-                    if (!cardIDAtPos) {
-                        break;
-                    }
-
-                    originalPos = {
-                        static_cast<int>(mousePos.x / static_cast<float>(window.getSize().x)),
-                        static_cast<int>(mousePos.y / static_cast<float>(window.getSize().y))
-                    };
-
-                    currentDragID = *cardIDAtPos;
+            if (event.mouseButton.button == sf::Mouse::Left) {
+                activeDrag = true;
+                busy = true;
+                auto cardIDAtPos = renderer.getCardAtPos(window, mousePos);
+                if (!cardIDAtPos) {
+                    break;
                 }
-                break;
-            
+                // Store normalized position
+                currentDragID = *cardIDAtPos;
+            }
+            break;
+
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     if (activeDrag) {
                         //int draggedDeck = renderer.getDeckAtPos(window, mousePos);
-
+                        auto parentPos = positionHandler.getPos(positionHandler.getParent(currentDragID));
                         // reset card position
-                        positionHandler.setPos(currentDragID, originalPos.x, originalPos.y);
-                        originalPos = {};
+                        positionHandler.setWishPos(currentDragID, parentPos.first, parentPos.second, 0.1);
                         currentDragID = -1;
                     }
 

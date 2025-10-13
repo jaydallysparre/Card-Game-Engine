@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <iostream>
 #include "PoolObject.hpp"
 #include "SceneObject.hpp"
 

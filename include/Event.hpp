@@ -28,11 +28,15 @@ enum class ReqEvent {
 struct AuthoritativeEvent {
     AuthEvent eventType;
     AuthoritativeEvent(AuthEvent e) : eventType(e) {}
+
+    virtual ~AuthoritativeEvent() = default;
 };
 
 struct RequestEvent {
     ReqEvent eventType;
     RequestEvent(ReqEvent e) : eventType(e) {}
+
+    virtual ~RequestEvent() = default;
 };
 
 /*
@@ -53,7 +57,7 @@ struct CreatedObject : AuthoritativeEvent {
     const double x;
     const double y;
 
-    CreatedObject(int ID) : AuthoritativeEvent(AuthEvent::CreatedObject), ID(ID), x(x), y(y) {}
+    CreatedObject(int ID, double x, double y) : AuthoritativeEvent(AuthEvent::CreatedObject), ID(ID), x(x), y(y) {}
 };
 
 struct DisabledObject : AuthoritativeEvent {
