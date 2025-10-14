@@ -96,3 +96,11 @@ struct FlippedCard : AuthoritativeEvent {
 /*
     Request Events
 */
+
+struct MoveCard : RequestEvent {
+    const int ID;
+    const int fromID;
+    const int toID;
+
+    MoveCard(int ID, int fromID, int toID) : RequestEvent(ReqEvent::MoveCard), ID(ID), fromID(fromID), toID(toID) {}
+};
