@@ -111,7 +111,9 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
         addCard(Card("NotColoured", "Joker"));
     }
 
-    // Return the top card of the vector 
+    // Return the top card of the vector. 
+    // DON"T WE NEED TO POP THE TOPCARD SO THAT THE CARD IS NOT PRESENT ANYMORE? 
+    // IF YOU DID IT SOMEWHERE ELSE, THAT'S FINE TOO
     std::optional<Card> topCard() const {
         if(cardPool.size() != 0){
             return cardPool.back();
@@ -130,6 +132,17 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
             card2 = *(cardPool.rbegin() + 1);
 
         return {card1, card2};
+    }
+
+    // Calculate the card scores, was this removed intentionally?
+    int cardScore(Card& card) {
+        auto suitIterator = std::find(SUITS.begin(), SUITS.end(), card.getSuit());
+        auto rankIterator = std::find(RANKS.begin(), RANKS.end(), card.getRank());
+
+        int suitValue = std::distance(SUITS.begin(), suitIterator);
+        int rankValue = std::distance(RANKS.begin(), rankIterator);
+
+        return suitValue*13 + rankValue;
     }
 
     // Shuffle the vector

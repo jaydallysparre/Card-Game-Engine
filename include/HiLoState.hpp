@@ -16,8 +16,8 @@ class HiLoScene: public Scene{
   // Set all the stuff needed for this game, which is technically one Deck.
   // These are some other counters required for this specific game.
   int hL = 0;
+  // Do I need to change the object type too? or should I just use card here?
   Card currentCard;
-  int playerScore = 0;
   GameState currentState;
 
   public:
@@ -28,14 +28,6 @@ class HiLoScene: public Scene{
   // Method to read the currentCard
   Card returnCurrentCard() {
     return currentCard;
-  }
-  // Method to read player score
-  int getPlayerScore() {
-    return playerScore;
-  }
-  // Method to raise player score
-  void incrementPlayerScore() {
-    playerScore++;
   }
   // Method to let the state functions change the state
   void setGameState(GameState newState) {
@@ -48,11 +40,13 @@ class HiLoScene: public Scene{
 };
 
 void state_showCard(HiLoScene& sceneName){
-  if (sceneName.isEmpty()) {   // I need to know how how we're going to set the deck id or something so I can replace sceneName if needed.
+  ObjectPoolSceneView& sceneView = sceneName.getSceneView();
+  std::vector<ObjectId> deckIds = sceneView.ofType(ObjType::Deck);  // IS THIS HOW I DO IT?
+  if (deckIds[0].isEmpty()) {   // This should reference the first deck right?
     sceneName.setGameState(GameState::SHOW_SCORE);
   }
   else {
-    Card topCard = sceneName.topCard(); // Same here how should I get the deck to get the topcard?
+    Card topCard = deckIds[0].topCard(); // How should I get the topcard? I tried using the normal topCard function to the deck.
     // render topCard for the player
     sceneName.setCurrentCard(topCard);
     sceneName.setGameState(GameState::HIGH_LOW);
@@ -71,18 +65,22 @@ void state_highLow(HiLoScene& sceneName){
 
 void state_calculate(HiLoScene& sceneName){
 
+  ObjectPoolSceneView& sceneView = sceneName.getSceneView();
+  std::vector<ObjectID> deckIds = sceneView.ofType(ObjType::Deck);
+  std::vector<ObjectID> players = sceneView.ofType(ObjType::Player); // This how I do it, right?
+
   Card firstCard = sceneName.returnCurrentCard();
-  Card secondCard = sceneName.topCard(); // Again, need to know how the deck is going to be set to properly use topcard();
+  Card secondCard = deckIds[0].topCard(); // This is how I use the Deck's method on the deck right?
   
-  int firstCardScore = cardScore(firstCard);
-  int secondCardScore = cardScore(secondCard);
+  int firstCardScore = deckIds[0].cardScore(firstCard);
+  int secondCardScore = deckIds[0].cardScore(secondCard);
 
   if(secondCardScore > firstCardScore) { // NEED AN AND CASE WHERE WE CALL THE HIGH OR LOW FROM PLAYER INPUT
-    sceneName.incrementPlayerScore();
+    players[0].score++; // Increment the score directly from the player
     sceneName.setGameState(GameState::SHOW_CARD);
   }
   else if(secondCardScore < firstCardScore) { // NEED AN AND CASE WHERE WE CALL THE HIGH OR LOW FROM PLAYER INPUT
-    sceneName.incrementPlayerScore();
+    players[0].score++;
     sceneName.setGameState(GameState::SHOW_CARD);
   }
    else{
