@@ -1,5 +1,9 @@
 #include "Controller.hpp"
 
+void Controller::init(ObjectPoolControllerView NewObjPool) {
+    poolView_ = NewObjPool;
+}
+
 void Controller::receiveAndRespond() {
     while (em.hasAuthEvents()) {
             // receive event from event manager
@@ -14,12 +18,17 @@ void Controller::receiveAndRespond() {
                 }
                 case AuthEvent::CreatedObject: {
                     CreatedObject* ev = static_cast<CreatedObject*>(event.get());
-                    createdObject(ev->ID);
+                    createdObject(ev->ID, ev->x, ev->y);
                     break;
                 }
                 case AuthEvent::DisabledObject: {
                     DisabledObject* ev = static_cast<DisabledObject*>(event.get());
                     disabledObject(ev->ID);
+                    break;
+                }
+                case AuthEvent::MovedObject: {
+                    MovedObject* ev = static_cast<MovedObject*>(event.get());
+                    movedObject(ev->ID, ev->x, ev->y);
                     break;
                 }
                 case AuthEvent::Shuffled: {

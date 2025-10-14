@@ -8,6 +8,9 @@
 
 #include "State.hpp"
 #include "EventManager.hpp"
+#include "SceneObject.hpp"
+#include "ObjectPoolViews.hpp"
+
 
 /*
     Scene
@@ -29,9 +32,18 @@ private:
 protected:
     /// state factory registry 
     std::unordered_map<std::string, StateFactory> factories;
+    // scene view
+    ObjectPoolSceneView sceneView;
+    // controller view
+    ObjectPoolControllerView ctrlView;
+    // pool
+    ObjectPool pool;
 
 public:
-    Scene(EventManager& em) : eventManager(em) {}
+    Scene(EventManager& em) : eventManager(em), sceneView{&pool}, ctrlView{&pool} {}
+
+    ObjectPoolSceneView& getSceneView() { return sceneView; }
+    const ObjectPoolControllerView& getControllerView() const { return ctrlView; }
 
     void run() {
         if (!currentState)

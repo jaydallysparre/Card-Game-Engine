@@ -5,10 +5,11 @@
 #include <random>
 #include <algorithm>
 #include <memory>
-#include "ObjectPool.hpp"
+#include <optional>
+#include "PoolObject.hpp"
 
 // The card class
-class Card : public, PoolObject {
+class Card : public PoolObject {
     // Two 
     private:
     std::string suit;
@@ -37,10 +38,7 @@ class Card : public, PoolObject {
     ObjType type() const override {return ObjType::Card;}
 };
 
-// Equality operator for the Card class that will help when removing cards
-bool operator==(const Card& inDeck, const Card& findingCard){
-    return inDeck.getSuit() == findingCard.getSuit() && inDeck.getRank() == findingCard.getRank();
-}
+bool operator==(const Card& inDeck, const Card& findingCard);
 
 class CardPool {
     protected: 
@@ -71,7 +69,7 @@ class CardPool {
 };
 
 // A class that helps the scene objects' location on the screen
-class PositionalSceneObject, public, PoolObject{
+class PositionalSceneObject {
     protected: 
     double horizontalPosition = 0.0;
     double verticalPosition = 0.0;
@@ -112,48 +110,41 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
         addCard(Card("Coloured", "Joker"));
         addCard(Card("NotColoured", "Joker"));
     }
-    // Return the top card of the vector. This method removes the top card.
-    // Removed the if statement that checks if the vector is empty because it's already considered when using this method.
-    Card topCard() {
-        Card topMostCard = cardPool.back();
-        cardPool.pop_back();
-        return topMostCard;
-    }
-    // HiLo game scoring system by card order. Can be moved to other places.
-    int cardScore(Card& card) {
-        auto suitIterator = std::find(SUITS.begin(), SUITS.end(), card.getSuit());
-        auto rankIterator = std::find(RANKS.begin(), RANKS.end(), card.getRank());
 
-        int suitValue = std::distance(SUITS.begin(), suitIterator);
-        int rankValue = std::distance(RANKS.begin(), rankIterator);
-
-        return suitValue*13 + rankValue;
+    // Return the top card of the vector 
+    std::optional<Card> topCard() const {
+        if(cardPool.size() != 0){
+            return cardPool.back();
+        }
+        return std::nullopt;
     }
+
+    // Return the top 2 cards of the vector
+    std::pair<std::optional<Card>, std::optional<Card>> top2Cards() const {
+        std::optional<Card> card1, card2;
+
+        if (!cardPool.empty())
+            card1 = cardPool.back();
+        
+        if (cardPool.size() >= 2)
+            card2 = *(cardPool.rbegin() + 1);
+
+        return {card1, card2};
+    }
+
     // Shuffle the vector
     void shuffle() {
-        auto rng = std::default_random_engine {};
+        std::random_device rand;
+        auto rng = std::default_random_engine {rand()};
         std::shuffle(std::begin(cardPool), std::end(cardPool), rng);
     }
     // Extra functions for ObjectPool
     ObjType type() const override {return ObjType::Deck;}
 };
 
-const std::vector<std::string> Deck::SUITS = {"H", "D", "C","S"};
-const std::vector<std::string> Deck::RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
-
 class Hand : public CardPool, public PositionalSceneObject, public PoolObject {
-    private:
-    // Player's score
-    int score = 0;
-    public:
-    // Read score
-    int readScore() {
-        return score;
-    }
-    // Increment score
-    void incrementScore() {
-        score++;
-    }
+    // store cards id
+    std::vector<ObjectId> cards;
     // Method for ObjectPool
     ObjType type() const override {return ObjType::Hand;}
 };
@@ -167,4 +158,12 @@ class Text : public PositionalSceneObject, public PoolObject {
     }
     // Method for ObjectPool
     ObjType type() const override {return ObjType::Text;}
+};
+
+class Player : public PoolObject {
+public:
+    ObjType type() const override {return ObjType::Player;}
+    std::string name;
+    ObjectId hand{};
+    int score{0};
 };
