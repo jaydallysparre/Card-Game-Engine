@@ -100,6 +100,12 @@ public:
     std::optional<int> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
         sf::Vector2f worldPos = window.mapPixelToCoords(pos);
         
+        for (const auto& [ID, rect]: cardBounds) {
+            if (rect.contains(worldPos)) {
+                return positionHandler.getParent(ID);
+            }
+        }
+
         return std::nullopt;
     }
 };

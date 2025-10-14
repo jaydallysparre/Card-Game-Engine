@@ -43,7 +43,13 @@ public:
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     if (activeDrag) {
-                        //int draggedDeck = renderer.getDeckAtPos(window, mousePos);
+                        // if we end on a receivable deck, request that we send our dragged card to that deck
+                        auto draggedDeck = renderer.getDeckAtPos(window, mousePos);
+                        if (draggedDeck) { // and isReceivable
+                            auto moveCard = std::make_unique<MoveCard>(currentDragID, positionHandler.getParent(currentDragID), *draggedDeck);
+                            em.pushReqEvent(std::move(moveCard));
+                        }
+
                         auto parentPos = positionHandler.getPos(positionHandler.getParent(currentDragID));
                         // reset card position
                         positionHandler.setWishPos(currentDragID, parentPos.first, parentPos.second, 0.1);
