@@ -1,120 +1,56 @@
 #pragma once
-#include <iostream>
+
 #include <string>
-#include <vector>
+#include <optional>
 #include <random>
 #include <algorithm>
-#include <memory>
-#include <optional>
+
 #include "PoolObject.hpp"
 
-// The card class
 class Card : public PoolObject {
-    // Two 
-    private:
+private:
     std::string suit;
     std::string rank;
 
-    public: 
-    // Default Constructor
-    Card()
-        : suit(""), rank("") // Initializer list
-    {}
+public:
+    Card(std::string s, std::string r) : suit(s), rank(r) {}
 
-    Card(std::string s, std::string r)
-        : suit(s), rank(r)
-    {}
-
-    // Method to set the suit
-    void setSuit(std::string s) {suit = s;}
-    // Method to set the Rank
-    void setRank(std::string r) {rank = r;}
-    // Method to read Suit 
     std::string getSuit() const {return suit;}
-    // Method to read Rank
     std::string getRank() const {return rank;}
-    // ObjectPool functions
-    bool faceUp{false};
+    ObjectId getId() const {return id;}
+
     ObjType type() const override {return ObjType::Card;}
 };
 
-bool operator==(const Card& inDeck, const Card& findingCard);
-
 class CardPool {
-    protected: 
-    std::vector<Card> cardPool;
-    public:
-    // Default constructor
-    CardPool() {}
-    // Method for adding a card
-    void addCard(const Card& newCard) {
-        cardPool.push_back(newCard);
-    }
-    // Method for removing a card
-    void removeCard(const Card& targetCard) {
-        // Find the matching card using the bool operator we defined in the Card class
-        auto removingCard = std::find(cardPool.begin(), cardPool.end(), targetCard);
-        if (removingCard != cardPool.end()) {
-            cardPool.erase(removingCard);
-        }
-    }
-    // Clear or Discard all cards
-    void clear() {
-        cardPool.clear();
-    }
-    // Method to check if hand / deck is empty or not
-    bool isEmpty() {
-        return cardPool.empty();
-    }
-};
+protected:
+    std::vector<ObjectId> cardPool;
 
-// A class that helps the scene objects' location on the screen
-class PositionalSceneObject {
-    protected: 
-    double horizontalPosition = 0.0;
-    double verticalPosition = 0.0;
-
-    public:
-    void setPosition(double x, double y) {
-        if (x < 0)
-        {horizontalPosition = 0;}
-        if (x > 1)
-        {horizontalPosition = 1;}
-        if (y < 0)
-        {verticalPosition = 0;}
-        if (y > 1)
-        {verticalPosition = 1;}
+public:
+    void addCard(ObjectId id) {
+        cardPool.push_back(id);
     }
-};
 
-// Class representing deck 
-class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
-    private: 
-    // Building vectors for the card types 
-    static const std::vector<std::string> SUITS;
-    static const std::vector<std::string> RANKS;
-    public:
-    // Method for Building decks
-    void buildDeck() {
-        // Reset Deck
-        clear();
-        // Two for loops to go through every pairing
-        for(const std::string& s : SUITS){
-            for(const std::string& r : RANKS){
-                addCard(Card(s, r));
+    bool removeCard(ObjectId id) {
+        for (auto it = cardPool.begin(); it != cardPool.end(); it++) { 
+            if (*it == id) {
+                cardPool.erase(it);
+                return true;
             }
         }
-    }
-    // Method for adding joker 
-    void addJokers() {
-        addCard(Card("Coloured", "Joker"));
-        addCard(Card("NotColoured", "Joker"));
+        return false;
     }
 
-    // Return the top card of the vector. 
-    // DON"T WE NEED TO POP THE TOPCARD SO THAT THE CARD IS NOT PRESENT ANYMORE? 
-    // IF YOU DID IT SOMEWHERE ELSE, THAT'S FINE TOO
-    std::optional<Card> topCard() const {
+    std::vector<ObjectId> getCards() const {
+        return cardPool;
+    }
+};
+
+class Deck : public CardPool, public PoolObject {
+public:
+
+// Return the top card of the vector 
+    std::optional<ObjectId> topCard() const {
         if(cardPool.size() != 0){
             return cardPool.back();
         }
@@ -122,8 +58,8 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
     }
 
     // Return the top 2 cards of the vector
-    std::pair<std::optional<Card>, std::optional<Card>> top2Cards() const {
-        std::optional<Card> card1, card2;
+    std::pair<std::optional<ObjectId>, std::optional<ObjectId>> top2Cards() const {
+        std::optional<ObjectId> card1, card2;
 
         if (!cardPool.empty())
             card1 = cardPool.back();
@@ -155,14 +91,19 @@ class Deck : public CardPool, public PositionalSceneObject, public PoolObject {
     ObjType type() const override {return ObjType::Deck;}
 };
 
-class Hand : public CardPool, public PositionalSceneObject, public PoolObject {
+class Hand : public CardPool, public PoolObject {
+private:
     // store cards id
     std::vector<ObjectId> cards;
+public:
+    void addCardId(ObjectId cardId) {cards.push_back(cardId);}
+    void removeCardId(ObjectId cardId) {cards.erase(std::remove(cards.begin(), cards.end(), cardId), cards.end());}
+    const std::vector<ObjectId>& getCards() const {return cards;}
     // Method for ObjectPool
     ObjType type() const override {return ObjType::Hand;}
 };
 
-class Text : public PositionalSceneObject, public PoolObject {
+class Text : public PoolObject {
     private: 
     std::vector<std::string> screenText; 
     public: 

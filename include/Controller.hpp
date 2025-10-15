@@ -9,9 +9,8 @@
 */
 
 class Controller {
-private:
-    EventManager& em;
 protected:
+    EventManager& em;
     ObjectPoolControllerView poolView_{};
     // event response functions
     // implemented empty to make overriding optional; controller may decide not to implement.

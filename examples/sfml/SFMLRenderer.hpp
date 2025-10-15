@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <unordered_map>
 #include <string>
+#include <iostream>
 #include "RenderPosition.hpp"
 #include "SceneObject.hpp"
 
@@ -22,8 +23,9 @@ class SFMLRenderer {
 
     std::unordered_map<int, sf::FloatRect> cardBounds;
     RenderPosition& positionHandler;
+    ObjectPoolControllerView& view;
 public:
-    SFMLRenderer(RenderPosition& renderPos) : positionHandler(renderPos) {
+    SFMLRenderer(RenderPosition& renderPos, ObjectPoolControllerView& view) : positionHandler(renderPos), view(view) {
 
         // generate file path names at runtime for our card-png examples.
         for (const std::string& s : SUITS) {
@@ -45,22 +47,24 @@ public:
 
         // render the second card below the top card.
         if (topCards.second)
-            renderCard(window, *topCards.second, (*topCards.second).id);
+            renderCard(window, *topCards.second);
 
         if (topCards.first)
-            renderCard(window, *topCards.first, (*topCards.first).id);
+            renderCard(window, *topCards.first);
         
     }
 
-    void renderCard(sf::RenderWindow& window, Card card, int ID) {
-        std::pair<double, double> currPos = positionHandler.getPos(ID);
+    void renderCard(sf::RenderWindow& window, ObjectId cardId) {
+        std::pair<double, double> currPos = positionHandler.getPos(cardId);
+
+        const Card* card = static_cast<const Card*>(view.getPointer(cardId));
 
         // calculate correct sfml position using normalized coordinates
         sf::Vector2f sfmlPos = {static_cast<float>(currPos.first) * window.getSize().x, 
                                 static_cast<float>(currPos.second) * window.getSize().y};
 
         // get card key for accessing texture
-        std::string cardKey = card.getRank() + card.getSuit();
+        std::string cardKey = card->getRank() + card->getSuit();
 
         if (!textureMap.count(cardKey)) {
             std::cerr << "Card texture could not be retrieved from map\n";
@@ -77,7 +81,7 @@ public:
         cardSprite.setPosition(sfmlPos);
 
         // register the card bounds for mouse collision detection
-        cardBounds[ID] = cardSprite.getGlobalBounds();
+        cardBounds[cardId] = cardSprite.getGlobalBounds();
 
         window.draw(cardSprite);
     }
@@ -95,5 +99,13 @@ public:
 
     std::optional<int> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
         sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+        
+        for (const auto& [ID, rect]: cardBounds) {
+            if (rect.contains(worldPos)) {
+                return positionHandler.getParent(ID);
+            }
+        }
+
+        return std::nullopt;
     }
 };

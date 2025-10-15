@@ -7,6 +7,7 @@
 #include "Controller.hpp"
 #include "Scene.hpp"
 #include "EventManager.hpp"
+#include "DefaultScene.hpp"
 
 /*
     Application
@@ -31,11 +32,14 @@ protected:
     }
 
     void attatchControllerToCurrent() {
-        controller->attachPool(currentScene->getControllerView());
+        controller.attachPool(currentScene->getControllerView());
     }
 
 public:
-    Application() : controller(eventManager) {}
+    Application() : controller(eventManager) {
+        currentScene = std::make_unique<DefaultScene>(eventManager);
+        attatchControllerToCurrent();
+    }
 
     void setInitialScene(SceneFactory f) {
         currentScene = f(eventManager);

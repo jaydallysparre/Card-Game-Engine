@@ -14,6 +14,7 @@ class RenderPosition {
 private:
     // maps for storing positions, elapsed time, duration; all in reference to ID.
     std::unordered_map<int, std::pair<double, double>> objectPos;
+    std::unordered_map<int, int> parentMap;
     std::unordered_map<int, std::pair<double, double>> animStartPos;
     std::unordered_map<int, std::pair<double, double>> animWishPos;
     std::unordered_map<int, double> elapsed;
@@ -47,8 +48,9 @@ private:
 
 public:
     // register object with 
-    void registerObjectPos(int ID, double x, double y) {
+    void registerObjectPos(int ID, double x, double y, int parent = -1) {
         objectPos[ID] = {x, y};
+        parentMap[ID] = parent;
     }
 
     void setPos(int ID, double x, double y) {
@@ -60,6 +62,14 @@ public:
         animStartPos[ID] = objectPos[ID];
         animWishPos[ID] = {x, y};
         duration[ID] = dur;
+    }
+
+    int getParent(int ID) {
+        return parentMap[ID];
+    }
+
+    void setParent(int ID, int parentID) {
+        parentMap[ID] = parentID;
     }
     
     // update all elapsed times, clean up animations if finished
@@ -73,6 +83,7 @@ public:
         for (int ID: finishedAnims) {
             cleanID(ID);
         }
+        finishedAnims.clear();
     }
     
     bool isAtPosition(int ID) {

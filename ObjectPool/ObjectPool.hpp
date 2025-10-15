@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <iostream>
+#include <unordered_map>
 #include "PoolObject.hpp"
 #include "SceneObject.hpp"
 
@@ -13,6 +15,7 @@ constexpr uint32_t TAG_RENDERABLE = 1u << 3;
 
 class ObjectPool {
 private:
+    std::unordered_map<int, int> parentsMap;
     std::vector<std::unique_ptr<PoolObject>> objects;
     ObjectId nextId{1};
     ObjectId activePlayer{0};
@@ -61,6 +64,14 @@ public:
         return pl->hand; 
     }
 
+    void setParent(ObjectId id, ObjectId parentId) {
+        parentsMap[id] = parentId;
+    }
+
+    ObjectId getParent(ObjectId id) {
+        return parentsMap[id];
+    }
+ 
     //check if match some of the tags
     bool hasAnyTag(ObjectId id, uint32_t tag) const {
         if (auto* o = const_cast<ObjectPool*>(this)->getPointer(id)) {

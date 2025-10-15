@@ -2,6 +2,7 @@
 
 #include "Controller.hpp"
 #include "RenderPosition.hpp"
+#include <iostream>
 
 /*
     Render Controller
@@ -21,6 +22,16 @@ public:
     }
 
     void createdObject(int ID, double x, double y) override {
+        auto obj = poolView_.getPointer(ID);
+
+        // if object is a deck, then register all of it's cards to the same position
+        if (obj->type() == ObjType::Deck) {
+            const Deck* deck = static_cast<const Deck*>(obj);
+
+            for (ObjectId cardId: deck->getCards()) {
+                positionHandler.registerObjectPos(cardId, x, y, deck->id);
+            }
+        }
         positionHandler.registerObjectPos(ID, x, y);
     }
     

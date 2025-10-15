@@ -10,7 +10,7 @@
 #include "EventManager.hpp"
 #include "SceneObject.hpp"
 #include "ObjectPoolViews.hpp"
-
+#include "Factory.hpp"
 
 /*
     Scene
@@ -38,14 +38,21 @@ protected:
     ObjectPoolControllerView ctrlView;
     // pool
     ObjectPool pool;
+    // factory for building objects
+    Factory objFactory;
 
 public:
-    Scene(EventManager& em) : eventManager(em), sceneView{&pool}, ctrlView{&pool} {}
+    Scene(EventManager& em) : eventManager(em), sceneView{&pool}, ctrlView{&pool}, objFactory(sceneView) {}
 
     ObjectPoolSceneView& getSceneView() { return sceneView; }
     const ObjectPoolControllerView& getControllerView() const { return ctrlView; }
 
+    // Main game loop function, called every time
     void run() {
+        // Process all incoming events and delegate them to the current state.
+        receiveAndRespond();
+
+        // Execute the current state's main logic for this frame.
         if (!currentState)
             throw std::runtime_error("No state at runtime\n");
 
@@ -60,11 +67,27 @@ public:
         }
 
         currentState = factories[newState]();
+        currentState.run();
     }
-
+    
+    void moveCard(int ID, int fromID, int toID) {
+        
+    }
+    
     void receiveAndRespond() {
-        // get current events, call checks on state
-        // if we switch states, run new state
-        // forward events to event manager
+        while (eventManager.hasReqEvents()) {
+            // receive event from event manager
+            auto event = eventManager.popReqEvent();
+
+            // dispatch correct event handler function
+            switch (event->eventType) {
+                case reqEvent::MoveCard: {
+                    MoveCard* ev = static_cast<MoveCard*>(event.get());
+                    moveCard(ev->ID, ev->fromID, ev->toID);
+                    currentState.handleEvent(event);
+                    break;
+                }
+            }
+        }
     }
 };
