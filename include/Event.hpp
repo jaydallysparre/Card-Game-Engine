@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /*
     Event structs, store data regarding type of event, and other required data. Authoritative Events are data on the scene end;
     the scene controls the object pool directly. Request events are what the controller sends to the scene, to ask it to perform
@@ -13,7 +15,9 @@ enum class AuthEvent {
     MovedObject,
     Shuffled, 
     ToggledObject, 
-    FlippedCard
+    FlippedCard,
+    SetDescriptor,
+    StatusMsg
 };
 enum class ReqEvent {
     MoveCard, 
@@ -91,6 +95,19 @@ struct FlippedCard : AuthoritativeEvent {
     const int ID;
 
     FlippedCard(int ID) : AuthoritativeEvent(AuthEvent::FlippedCard), ID(ID) {}
+};
+
+struct SetDescriptor : AuthoritativeEvent {
+    const int ID;
+    std::string description;
+
+    SetDescriptor(int ID, std::string desc) : AuthoritativeEvent(AuthEvent::SetDescriptor), ID(ID), description(desc) {}
+};
+
+struct StatusMsg : AuthoritativeEvent {
+    std::string status;
+
+    StatusMsg(std::string status) : AuthoritativeEvent(AuthEvent::StatusMsg), status(status) {}
 };
 
 /*

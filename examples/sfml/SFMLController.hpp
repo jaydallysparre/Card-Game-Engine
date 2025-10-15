@@ -46,7 +46,7 @@ public:
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     if (activeDrag) {
                         // if we end on a receivable deck, request that we send our dragged card to that deck
-                        auto draggedDeck = renderer.getDeckAtPos(window, mousePos);
+                        auto draggedDeck = renderer.getDeckAtPos(window, mousePos, poolView_.getParent(currentDragID));
                         if (draggedDeck && currentDragID != -1) { // and isReceivable
                             auto moveCard = std::make_unique<MoveCard>(currentDragID, poolView_.getParent(currentDragID), *draggedDeck);
                             em.pushReqEvent(std::move(moveCard));
@@ -84,6 +84,8 @@ public:
             const Deck* deck = dynamic_cast<const Deck*>(poolView_.getPointer(deckID));
             renderer.renderDeck(window, deck, deckID);
         }
+
+        renderer.renderStatus(window, dt);
     }
 
     /*
@@ -94,5 +96,13 @@ public:
         positionHandler.setParent(cardID, toID);
         auto toPos = positionHandler.getPos(toID);
         positionHandler.setWishPos(cardID, toPos.first, toPos.second, 0.5);
+    }
+
+    void setDescriptor(int ID, std::string str) override {
+        renderer.setDeckLabel(ID, str);
+    }
+
+    void statusMsg(std::string msg) override {
+        renderer.setStatus(msg);
     }
 };

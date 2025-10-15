@@ -8,11 +8,20 @@
 #include "SceneObject.hpp"
 
 class SFMLRenderer {
+    // constants
     const float CARD_WIDTH = 120.0f;
     const float CARD_HEIGHT = 160.0f;
+    const int FONT_SIZE = 16;
+    const int STATUS_SIZE = 12;
+    const float STATUS_DURATION = 2.0f;
 
     // load textures into textureMap to save creating textures every frame
     std::unordered_map<std::string, sf::Texture> textureMap;
+
+    // font
+    sf::Font font;
+    sf::Text statusMsg;
+    sf::Clock statusTimer;
 
     // path to card images
     const std::string path = "examples/sfml/card-png/";
@@ -21,7 +30,10 @@ class SFMLRenderer {
     const std::vector<std::string> SUITS = {"H", "D", "C","S"};
     const std::vector<std::string> RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
+    // deck maps
     std::unordered_map<int, sf::FloatRect> deckBounds;
+    std::unordered_map<int, sf::Text> deckLabels;
+
     RenderPosition& positionHandler;
     ObjectPoolControllerView& view;
 
@@ -57,6 +69,11 @@ public:
         }
 
         textureMap["empty"].setSmooth(true);
+
+        // load font
+        if (!font.loadFromFile("examples/sfml/font/inter.ttf")) {
+            std::cerr << "Failed to load font\n";
+        }
     }
 
     void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID) {
@@ -68,20 +85,9 @@ public:
         // render the second card below the top card.
         if (topCards.second) {
             deckBox = renderCard(window, *topCards.second);
-        }
 
-        if (topCards.first) {
-            tempRect = renderCard(window, *topCards.first);
-            
-            // combine hitboxes if applicable
-            if (topCards.second) {
-                deckBox = combineRect(deckBox, tempRect);
-            } else {
-                deckBox = tempRect;
-            }
-        }
-        
-        if (!topCards.first) {
+        // else render the empty card
+        } else {
             auto deckPos = positionHandler.getPos(ID);
             sf::Vector2f sfmlPos = {
                 static_cast<float>(deckPos.first) * window.getSize().x,
@@ -101,7 +107,29 @@ public:
             deckBox = emptySprite.getGlobalBounds();
         }
 
+        // render the top card in deck, if it exists
+        if (topCards.first) {
+            tempRect = renderCard(window, *topCards.first);
+            
+            // combine hitboxes
+            deckBox = combineRect(deckBox, tempRect);
+        }
+
         deckBounds[ID] = deckBox;
+
+        // if we have a label for this deck, render it
+        if (deckLabels.count(ID)) {
+            auto deckPos = positionHandler.getPos(ID);
+
+            // convert normalized position to actual position
+            sf::Vector2f sfmlPos { static_cast<float>(deckPos.first) * window.getSize().x,
+                                   static_cast<float>(deckPos.second) * window.getSize().y };
+
+            
+            deckLabels[ID].setPosition({sfmlPos.x, sfmlPos.y + CARD_HEIGHT / 2.0f + 1});
+        
+            window.draw(deckLabels[ID]);
+        }
     }
 
     sf::FloatRect renderCard(sf::RenderWindow& window, ObjectId cardId) {
@@ -135,11 +163,11 @@ public:
         return cardSprite.getGlobalBounds();
     }
 
-    std::optional<ObjectId> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+    std::optional<ObjectId> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos, ObjectId ignoreID=UINT32_MAX) {
         sf::Vector2f worldPos = window.mapPixelToCoords(pos);
 
         for (const auto& [ID, rect]: deckBounds) {
-            if (rect.contains(worldPos))
+            if (rect.contains(worldPos) && ID != ignoreID)
                 return ID;
         }
 
@@ -154,5 +182,33 @@ public:
         const Deck* deck = static_cast<const Deck*>(view.getPointer(*deckID));
 
         return deck->topCard();
+    }
+
+    void setDeckLabel(int ID, const std::string& str) {
+        sf::Text label;
+        label.setFont(font);
+        label.setString(str);
+        label.setCharacterSize(FONT_SIZE);
+        label.setOrigin(std::round(label.getLocalBounds().width/2.0f), 0.0f);
+        deckLabels[ID] = label;
+    }
+
+    void setStatus(std::string& status) {
+        statusMsg.setFont(font);
+        statusMsg.setString(status);
+        statusMsg.setCharacterSize(STATUS_SIZE);
+        statusTimer.restart();
+    }
+
+    void renderStatus(sf::RenderWindow& window, float dt) {
+        statusMsg.setPosition(window.getSize().x - statusMsg.getLocalBounds().width - 5.0f, 5.0f);
+
+        // fade-out text over STATUS_DURATION
+        float currTime = statusTimer.getElapsedTime().asSeconds();
+        sf::Color textColour = sf::Color::White;
+        textColour.a = 255 * std::clamp(1.0f - (currTime/STATUS_DURATION), 0.0f, 1.0f);
+        statusMsg.setFillColor(textColour);
+        
+        window.draw(statusMsg);
     }
 };
