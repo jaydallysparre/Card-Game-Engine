@@ -8,12 +8,17 @@
 #include "SceneObject.hpp"
 
 class SFMLRenderer {
-    // constants
-    const float CARD_WIDTH = 120.0f;
-    const float CARD_HEIGHT = 160.0f;
+    // text constants
     const int FONT_SIZE = 16;
     const int STATUS_SIZE = 12;
     const float STATUS_DURATION = 2.0f;
+
+    // current card sizes
+    float CARD_WIDTH = 96.0f;
+    float CARD_HEIGHT = 128.0f;
+
+    const float CARD_WIDTH_RATIO = CARD_WIDTH/800.0f;
+    const float CARD_ASPECT_RATIO = CARD_WIDTH / CARD_HEIGHT;
 
     // load textures into textureMap to save creating textures every frame
     std::unordered_map<std::string, sf::Texture> textureMap;
@@ -77,7 +82,12 @@ public:
     }
 
     void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID) {
-        auto topCards = deck->top2Cards();
+        // if we have a label for this deck, render it first
+        if (deckLabels.count(ID)) {
+            renderDeckLabel(window, ID);
+        }
+
+        auto topCards = deck->top2Cards();    
 
         sf::FloatRect deckBox;
         sf::FloatRect tempRect;
@@ -117,19 +127,17 @@ public:
 
         deckBounds[ID] = deckBox;
 
-        // if we have a label for this deck, render it
-        if (deckLabels.count(ID)) {
-            auto deckPos = positionHandler.getPos(ID);
+    }
 
-            // convert normalized position to actual position
-            sf::Vector2f sfmlPos { static_cast<float>(deckPos.first) * window.getSize().x,
-                                   static_cast<float>(deckPos.second) * window.getSize().y };
+    void renderDeckLabel(sf::RenderWindow& window, int ID) {
+        auto deckPos = positionHandler.getPos(ID);
 
-            
-            deckLabels[ID].setPosition({sfmlPos.x, sfmlPos.y + CARD_HEIGHT / 2.0f + 1});
-        
-            window.draw(deckLabels[ID]);
-        }
+        // convert normalized position to actual position
+        sf::Vector2f sfmlPos { static_cast<float>(deckPos.first) * window.getSize().x,
+                                static_cast<float>(deckPos.second) * window.getSize().y };
+   
+        deckLabels[ID].setPosition({sfmlPos.x, sfmlPos.y + CARD_HEIGHT / 2.0f + 1});    
+        window.draw(deckLabels[ID]);
     }
 
     sf::FloatRect renderCard(sf::RenderWindow& window, ObjectId cardId) {
@@ -157,6 +165,12 @@ public:
         cardSprite.setScale(scaledSizes);
         cardSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f); // center-based positioning
         cardSprite.setPosition(sfmlPos);
+
+        // basic drop shadow
+        sf::Sprite shadowSprite = cardSprite;
+        shadowSprite.move(4.0f, 4.0f);
+        shadowSprite.setColor(sf::Color(0,0,0,20));
+        window.draw(shadowSprite);
 
         window.draw(cardSprite);
 
@@ -210,5 +224,10 @@ public:
         statusMsg.setFillColor(textColour);
         
         window.draw(statusMsg);
+    }
+
+    void calcNewCardSize(sf::RenderWindow& window) {
+        CARD_WIDTH = window.getSize().x * CARD_WIDTH_RATIO;
+        CARD_HEIGHT = CARD_WIDTH / CARD_ASPECT_RATIO;
     }
 };

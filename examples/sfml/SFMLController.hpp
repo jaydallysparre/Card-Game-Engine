@@ -71,6 +71,9 @@ public:
                         static_cast<double>(mousePos.y)/window.getSize().y);
                 }
                 break;
+            case sf::Event::Resized:
+                renderer.calcNewCardSize(window);
+                break;
         }
     }
 
