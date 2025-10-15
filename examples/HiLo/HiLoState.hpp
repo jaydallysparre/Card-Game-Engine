@@ -46,6 +46,7 @@ void state_showCard(HiLoScene& sceneName){
     sceneName.setGameState(GameState::SHOW_SCORE);
   }
   else {
+    // Card* card = static_cast<Card*>(pool.getPointer(ID))
     Card topCard = deckIds[0].topCard(); // How should I get the topcard? I tried using the normal topCard function to the deck.
     // render topCard for the player
     sceneName.setCurrentCard(topCard);
