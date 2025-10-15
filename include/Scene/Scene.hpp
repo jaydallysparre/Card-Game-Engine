@@ -67,36 +67,27 @@ public:
         }
 
         currentState = factories[newState]();
+        currentState.run();
     }
-
+    
+    void moveCard(int ID, int fromID, int toID) {
+        
+    }
+    
     void receiveAndRespond() {
-        // get current events, call checks on state
-        // if we switch states, run new state
-        // forward events to event manager
-        
-        if (!currentState) return;
-        
-        std::vector<std::unique_ptr<RequestEvent>> newRequestEvents;
+        while (eventManager.hasReqEvents()) {
+            // receive event from event manager
+            auto event = eventManager.popReqEvent();
 
-        // Get current authoritative events, call checks on state.
-        // Loop through all pending authoritative events from the manager.
-        while (eventManager.hasAuthEvents()) {
-            std::unique_ptr<AuthoritativeEvent> authEvent = eventManager.popAuthEvent();
-            if (!authEvent) continue;
-
-             // Let the current state handle the event. This might trigger a state change
-             // and will return any new RequestEvents that were created.
-             auto generatedEvents = currentState->handleEvent(*authEvent);
-
-             // Collect all newly generated request events.
-             for (auto& req : generatedEvents) {
-                 newRequestEvents.push_back(std::move(req));
-             }
-         }
-
-         // Forward new request events to the event manager.
-         for (auto& reqEvent : newRequestEvents) {
-             eventManager.pushReqEvent(std::move(reqEvent));
-         }
+            // dispatch correct event handler function
+            switch (event->eventType) {
+                case reqEvent::MoveCard: {
+                    MoveCard* ev = static_cast<MoveCard*>(event.get());
+                    moveCard(ev->ID, ev->fromID, ev->toID);
+                    currentState.handleEvent(event);
+                    break;
+                }
+            }
+        }
     }
 };
