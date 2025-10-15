@@ -69,9 +69,13 @@ public:
         currentState = factories[newState]();
         currentState->run();
     }
-    
+
     void moveCard(int ID, int fromID, int toID) {
-        
+        // TODO: Update parents in object pool when we are able to
+        Deck* fromDeck = static_cast<Deck*>(sceneView.getPointer(fromID));
+        fromDeck->removeCard(ID);
+        Deck* toDeck = static_cast<Deck*>(sceneView.getPointer(toID));
+        toDeck->addCard(ID);
     }
     
     void receiveAndRespond() {
