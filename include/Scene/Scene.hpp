@@ -11,6 +11,8 @@
 #include "SceneObject.hpp"
 #include "ObjectPoolViews.hpp"
 #include "Factory.hpp"
+#include <iostream>
+#include <climits>
 
 /*
     Scene
@@ -71,11 +73,18 @@ public:
     }
 
     void moveCard(int ID, int fromID, int toID) {
-        // TODO: Update parents in object pool when we are able to
         Deck* fromDeck = static_cast<Deck*>(sceneView.getPointer(fromID));
         fromDeck->removeCard(ID);
         Deck* toDeck = static_cast<Deck*>(sceneView.getPointer(toID));
         toDeck->addCard(ID);
+
+        // update parent
+        sceneView.setParent(ID, toID);
+
+        std::cout << "Dragged card " << ID << " from deck " << fromID << " to deck " << toID << "\n";
+
+        auto movedCard = std::make_unique<MovedCard>(ID, fromID, toID);
+        eventManager.pushAuthEvent(std::move(movedCard));
     }
     
     void receiveAndRespond() {

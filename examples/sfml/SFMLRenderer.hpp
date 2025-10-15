@@ -21,12 +21,22 @@ class SFMLRenderer {
     const std::vector<std::string> SUITS = {"H", "D", "C","S"};
     const std::vector<std::string> RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
-    std::unordered_map<int, sf::FloatRect> cardBounds;
+    std::unordered_map<int, sf::FloatRect> deckBounds;
     RenderPosition& positionHandler;
     ObjectPoolControllerView& view;
+
+private:
+    // Function to combine rectangles, so that if we have card offsets hitbox is accurate
+    sf::FloatRect combineRect(const sf::FloatRect& rect1, const sf::FloatRect& rect2) {
+        return sf::FloatRect(
+            std::min(rect1.left, rect2.left),
+            std::min(rect1.top, rect2.top),
+            std::max(rect1.left + rect1.width, rect2.left + rect2.width),
+            std::max(rect1.top + rect1.height, rect2.top + rect2.height)
+        );
+    }
 public:
     SFMLRenderer(RenderPosition& renderPos, ObjectPoolControllerView& view) : positionHandler(renderPos), view(view) {
-
         // generate file path names at runtime for our card-png examples.
         for (const std::string& s : SUITS) {
             for (const std::string& r : RANKS) {
@@ -40,21 +50,61 @@ public:
                 textureMap[key].setSmooth(true);
             }
         }
+
+        // empty texture
+        if (!textureMap["empty"].loadFromFile(path + "empty.png")) {
+            std::cerr << "Failed to load empty texture\n";
+        }
+
+        textureMap["empty"].setSmooth(true);
     }
 
     void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID) {
         auto topCards = deck->top2Cards();
 
-        // render the second card below the top card.
-        if (topCards.second)
-            renderCard(window, *topCards.second);
+        sf::FloatRect deckBox;
+        sf::FloatRect tempRect;
 
-        if (topCards.first)
-            renderCard(window, *topCards.first);
+        // render the second card below the top card.
+        if (topCards.second) {
+            deckBox = renderCard(window, *topCards.second);
+        }
+
+        if (topCards.first) {
+            tempRect = renderCard(window, *topCards.first);
+            
+            // combine hitboxes if applicable
+            if (topCards.second) {
+                deckBox = combineRect(deckBox, tempRect);
+            } else {
+                deckBox = tempRect;
+            }
+        }
         
+        if (!topCards.first) {
+            auto deckPos = positionHandler.getPos(ID);
+            sf::Vector2f sfmlPos = {
+                static_cast<float>(deckPos.first) * window.getSize().x,
+                static_cast<float>(deckPos.second) * window.getSize().y
+            };
+
+            sf::Sprite emptySprite(textureMap["empty"]);
+            sf::Vector2u texSize = textureMap["empty"].getSize();
+            sf::Vector2f scaledSizes = {CARD_WIDTH/texSize.x, CARD_HEIGHT/texSize.y};
+            emptySprite.setScale(scaledSizes);
+            emptySprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f);
+            emptySprite.setPosition(sfmlPos);
+            
+            window.draw(emptySprite);
+            
+            // Store the empty deck bounds
+            deckBox = emptySprite.getGlobalBounds();
+        }
+
+        deckBounds[ID] = deckBox;
     }
 
-    void renderCard(sf::RenderWindow& window, ObjectId cardId) {
+    sf::FloatRect renderCard(sf::RenderWindow& window, ObjectId cardId) {
         std::pair<double, double> currPos = positionHandler.getPos(cardId);
 
         const Card* card = static_cast<const Card*>(view.getPointer(cardId));
@@ -68,7 +118,7 @@ public:
 
         if (!textureMap.count(cardKey)) {
             std::cerr << "Card texture could not be retrieved from map\n";
-            return; 
+            return sf::FloatRect(); 
         }
 
         sf::Sprite cardSprite(textureMap[cardKey]);
@@ -80,16 +130,15 @@ public:
         cardSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f); // center-based positioning
         cardSprite.setPosition(sfmlPos);
 
-        // register the card bounds for mouse collision detection
-        cardBounds[cardId] = cardSprite.getGlobalBounds();
-
         window.draw(cardSprite);
+
+        return cardSprite.getGlobalBounds();
     }
 
-    std::optional<int> getCardAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+    std::optional<ObjectId> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
         sf::Vector2f worldPos = window.mapPixelToCoords(pos);
 
-        for (const auto& [ID, rect]: cardBounds) {
+        for (const auto& [ID, rect]: deckBounds) {
             if (rect.contains(worldPos))
                 return ID;
         }
@@ -97,15 +146,13 @@ public:
         return std::nullopt;
     }
 
-    std::optional<int> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
-        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
-        
-        for (const auto& [ID, rect]: cardBounds) {
-            if (rect.contains(worldPos)) {
-                return positionHandler.getParent(ID);
-            }
-        }
+    std::optional<ObjectId> getTopCardAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+        auto deckID = getDeckAtPos(window, pos);
 
-        return std::nullopt;
+        if (!deckID) return std::nullopt;
+
+        const Deck* deck = static_cast<const Deck*>(view.getPointer(*deckID));
+
+        return deck->topCard();
     }
 };

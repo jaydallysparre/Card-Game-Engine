@@ -17,6 +17,7 @@ ObjectId Factory::createDeck(bool full, bool shuffled) {
                 auto card = std::make_unique<Card>(s, r);
                 ObjectId cardId = view.add(std::move(card));
                 deck->addCard(cardId);
+                view.setParent(cardId, deckId);
             }
         }
     }

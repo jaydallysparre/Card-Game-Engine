@@ -6,6 +6,7 @@
 #include "RenderController.hpp"
 #include "SFMLRenderer.hpp"
 #include "SceneObject.hpp"
+#include <iostream>
 
 class SFMLController : public RenderController {
     SFMLRenderer renderer;
@@ -29,12 +30,13 @@ public:
         switch (event.type) {
             case sf::Event::MouseButtonPressed:
             if (event.mouseButton.button == sf::Mouse::Left) {
-                activeDrag = true;
-                busy = true;
-                auto cardIDAtPos = renderer.getCardAtPos(window, mousePos);
+                auto cardIDAtPos = renderer.getTopCardAtPos(window, mousePos);
                 if (!cardIDAtPos) {
                     break;
                 }
+                activeDrag = true;
+                busy = true;
+
                 // Store normalized position
                 currentDragID = *cardIDAtPos;
             }
@@ -45,17 +47,17 @@ public:
                     if (activeDrag) {
                         // if we end on a receivable deck, request that we send our dragged card to that deck
                         auto draggedDeck = renderer.getDeckAtPos(window, mousePos);
-                        if (draggedDeck) { // and isReceivable
-                            auto moveCard = std::make_unique<MoveCard>(currentDragID, positionHandler.getParent(currentDragID), *draggedDeck);
+                        if (draggedDeck && currentDragID != -1) { // and isReceivable
+                            auto moveCard = std::make_unique<MoveCard>(currentDragID, poolView_.getParent(currentDragID), *draggedDeck);
                             em.pushReqEvent(std::move(moveCard));
                         }
 
-                        auto parentPos = positionHandler.getPos(positionHandler.getParent(currentDragID));
+                        auto parentPos = positionHandler.getPos(poolView_.getParent(currentDragID));
                         // reset card position
                         positionHandler.setWishPos(currentDragID, parentPos.first, parentPos.second, 0.1);
-                        currentDragID = -1;
                     }
 
+                    currentDragID = -1;
                     activeDrag = false;
                     busy = false;
                 }
@@ -89,7 +91,8 @@ public:
     */
 
     void movedCard(int cardID, int fromID, int toID) override {
+        positionHandler.setParent(cardID, toID);
         auto toPos = positionHandler.getPos(toID);
-        positionHandler.setWishPos(cardID, toPos.first, toPos.second, 5.0);
+        positionHandler.setWishPos(cardID, toPos.first, toPos.second, 0.5);
     }
 };
