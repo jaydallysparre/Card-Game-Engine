@@ -19,5 +19,5 @@ public:
     virtual void run() = 0;
 
     // handle any incoming events; ran continuously in response to new events
-    virtual void handleEvent(RequestEvent ev) = 0;
+    virtual void handleEvent(std::unique_ptr<RequestEvent> ev) = 0;
 };
