@@ -67,7 +67,7 @@ public:
         }
 
         currentState = factories[newState]();
-        currentState.run();
+        currentState->run();
     }
     
     void moveCard(int ID, int fromID, int toID) {
@@ -81,10 +81,10 @@ public:
 
             // dispatch correct event handler function
             switch (event->eventType) {
-                case reqEvent::MoveCard: {
+                case ReqEvent::MoveCard: {
                     MoveCard* ev = static_cast<MoveCard*>(event.get());
                     moveCard(ev->ID, ev->fromID, ev->toID);
-                    currentState.handleEvent(event);
+                    currentState->handleEvent(std::move(event));
                     break;
                 }
             }
