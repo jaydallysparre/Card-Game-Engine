@@ -134,7 +134,7 @@ public:
 
         // convert normalized position to actual position
         sf::Vector2f sfmlPos { static_cast<float>(deckPos.first) * window.getSize().x,
-                                static_cast<float>(deckPos.second) * window.getSize().y };
+                               static_cast<float>(deckPos.second) * window.getSize().y };
    
         deckLabels[ID].setPosition({sfmlPos.x, sfmlPos.y + CARD_HEIGHT / 2.0f + 1});    
         window.draw(deckLabels[ID]);

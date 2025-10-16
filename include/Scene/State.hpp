@@ -7,13 +7,24 @@
 #include "Event.hpp"
 #include "EventManager.hpp"
 
+/*
+    State Class
+    We aim to represent games as state machines, hence the state class represents
+    some individual game state; we can run code on construction, update periodically,
+    and respond to certain events.
+*/
+
 struct Scene;
 class State { 
 protected:
+    // references to objects we want to communicate with
     Scene& scene;
     EventManager& em;
+    ObjectPoolSceneView& sceneView;
 public:
-    State(Scene& scene_ref, EventManager& em_ref) : scene(scene_ref), em(em_ref) {}
+    State(Scene& scene_ref, EventManager& em_ref, ObjectPoolSceneView& sv) : 
+        scene(scene_ref), em(em_ref), sceneView(sv) {}
+
     virtual ~State() = default;
 
     // update any state stuff

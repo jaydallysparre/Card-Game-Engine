@@ -5,14 +5,16 @@
 #include <string>
 #include <unordered_map>
 #include <stdexcept>
+#include <iostream>
+#include <climits>
+#include <limits>
 
 #include "State.hpp"
 #include "EventManager.hpp"
 #include "SceneObject.hpp"
 #include "ObjectPoolViews.hpp"
 #include "Factory.hpp"
-#include <iostream>
-#include <climits>
+
 
 /*
     Scene
@@ -71,7 +73,6 @@ public:
         }
 
         currentState = factories[newState]();
-        currentState->run();
     }
 
     void moveCard(int ID, int fromID, int toID) {
@@ -89,6 +90,18 @@ public:
         eventManager.pushAuthEvent(std::move(movedCard));
     }
     
+    double getTFactor() {
+        return tFactor;
+    }
+    
+    void setTFactor(double newtFactor) {
+        tFactor = newtFactor;
+    }
+
+    void updateTFactor(double tFactorAdd) {
+        tFactor += tFactorAdd;
+    }
+
     void receiveAndRespond() {
         while (eventManager.hasReqEvents()) {
             // receive event from event manager
@@ -100,6 +113,11 @@ public:
                     MoveCard* ev = static_cast<MoveCard*>(event.get());
                     moveCard(ev->ID, ev->fromID, ev->toID);
                     currentState->handleEvent(std::move(event));
+                    break;
+                }
+                case ReqEvent::UpdateTFactor: {
+                    UpdateTFactor* ev = static_cast<UpdateTFactor*>(event.get());
+                    updateTFactor(ev->newFactor);
                     break;
                 }
             }

@@ -25,7 +25,7 @@ ObjectId Factory::createDeck(bool full, bool shuffled) {
     if (shuffled) {
         deck->shuffle();
     }
-
+    
     return deckId;
 }
 

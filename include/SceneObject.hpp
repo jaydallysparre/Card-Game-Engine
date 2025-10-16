@@ -110,3 +110,7 @@ public:
     ObjectId hand{};
     int score{0};
 };
+
+class Button : public PoolObject {
+
+};
