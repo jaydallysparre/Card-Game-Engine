@@ -15,7 +15,8 @@ protected:
 public:
     State(Scene& scene_ref, EventManager& em_ref) : scene(scene_ref), em(em_ref) {}
     virtual ~State() = default;
-    // run our state code upon changing states
+
+    // update any state stuff
     virtual void run() = 0;
 
     // handle any incoming events; ran continuously in response to new events
