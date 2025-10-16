@@ -4,15 +4,15 @@
 #include "State.hpp"
 
 class SetupState: public State {
-    ObjectPoolSceneView& sceneView = scene.getSceneView();
-    std::vector<ObjectId> deckIds = sceneView.ofType(ObjType::Deck);
-    const Deck* deck0 = static_cast<const Deck*>(view.getPointer(deckIds[0]));
-    const Deck* deck1 = static_cast<const Deck*>(view.getPointer(deckIds[1]));
-    auto topCard = deck0.topCard();
+    SetupState(Scene& scene_ref, EventManager& em_ref, ObjectPoolSceneView& sv) : State(scene_ref, em_ref, sv) {}
     void run() {
+        std::vector<ObjectId> deckIds = sceneView.ofType(ObjType::Deck);
+        const Deck* deck0 = static_cast<const Deck*>(view.getPointer(deckIds[0]));
+        const Deck* deck1 = static_cast<const Deck*>(view.getPointer(deckIds[1]));
+        auto topCard = deck0.topCard();
         if(topCard) {
             // Move the top card of deck0 to deck1.
-            moveCard(*topCard, deckIds[0], deckIds[1]); // NEED TO ASK ABOUT HOW TO GET TOPCARD ID
+            sceneView.moveCard(*topCard, deckIds[0], deckIds[1]); // NEED TO ASK ABOUT HOW TO GET TOPCARD ID
             // Change the state to the next state.
             scene.changeState("PlayerInputState");
         } 
@@ -25,25 +25,31 @@ class SetupState: public State {
 
 class PlayerInputState: public State {
     // Assign the button ID to both 
-    ObjectPoolSceneView& sceneView = scene.getSceneView();
-    std::vector<ObjectId> ButtonIds = sceneView.ofType(ObjType::Button);
-    const Button* button0 = static_cast<const Button*>(view.getPointer(ButtonIds[0]));
-    const Button* button1 = static_cast<const Button*>(view.getPointer(ButtonIds[1]));
-    // wait until the button is pressed.  
+    ObjectId pressedButton;
+    PlayerInputState(Scene& scene_ref, EventManager& em_ref, ObjectPoolSceneView& sv) : State(scene_ref, em_ref, sv) {}
+    
+    void run() {
+        std::vector<ObjectId> ButtonIds = sceneView.ofType(ObjType::Button);
+        const Button* button0 = static_cast<const Button*>(view.getPointer(ButtonIds[0]));
+        const Button* button1 = static_cast<const Button*>(view.getPointer(ButtonIds[1]));
+        // wait until the button is pressed.  
+    }
     void handleEvent(std::unique_ptr<RequestEvent> ev){
         switch (event -> eventType){
             case ReqEvent::PressButton: {
                 PressButton* ev = static_cast<PressButton*>(event.get());
                 // Store the pressed button's ID into the scene's buttonPressed attribute. 
-                scene.buttonPressed = ev->ID;
+                pressedButton = ev->ID;
             }
         }
     }
+    sceen.buttonPressed = pressedButton;
     scene.changeState("CalculateScore");
 };
 
 class CalculateScore: public State {
-    ObjectPoolSceneView& sceneView = scene.getSceneView();
+    CalculateScore(Scene& scene_ref, EventManager& em_ref, ObjectPoolSceneView& sv) : State(scene_ref, em_ref, sv) {}
+    void run() {
     std::vector<ObjectId> deckIds = sceneView.ofType(ObjType::Deck);
     std::vector<ObjectId> ButtonIds = sceneView.ofType(ObjType::Button);
     const Deck* deck0 = static_cast<const Deck*>(view.getPointer(deckIds[0]));
@@ -70,8 +76,10 @@ class CalculateScore: public State {
     {scene.playerScore++;}
     // Move to next state
     scene.changeState("SetupState");
+    }
 };
 
 class GameEndState: public State {
+    SetupState(Scene& scene_ref, EventManager& em_ref, ObjectPoolSceneView& sv) : State(scene_ref, em_ref, sv) {}
     // State for ending the game. 
 };

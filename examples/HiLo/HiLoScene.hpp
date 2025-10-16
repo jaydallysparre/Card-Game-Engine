@@ -7,7 +7,7 @@
 
 class HiLoScene: public Scene{
   // Variable to record the button that was pressed
-  private:
+  protected:
   ObjectId buttonPressed;
   int playerScore = 0; 
   public:
