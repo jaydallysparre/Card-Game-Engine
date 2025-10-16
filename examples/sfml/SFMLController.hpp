@@ -30,7 +30,7 @@ public:
         switch (event.type) {
             // Handle drag card (deck/hand to deck/hand)
             case sf::Event::MouseButtonPressed:
-                if (event.mouseButton.button == sf::Mouse::Left) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
                     std::optional<ObjectId> cardIDAtPos;
                     auto hands = poolView_.ofType(ObjType::Hand);
                     for (ObjectId handId : hands) {
@@ -48,8 +48,15 @@ public:
                         // Store normalized position
                         currentDragID = *cardIDAtPos;
                     }
+                
+                auto btnIDAtPos = renderer.getButtonAtPos(window, mousePos);
+
+                if (btnIDAtPos) {
+                    auto pressButton = std::make_unique<PressButton>(*btnIDAtPos);
+                    em.pushReqEvent(std::move(pressButton));
                 }
-                break;
+            }
+            break;
 
             case sf::Event::MouseButtonReleased:
                 if (event.mouseButton.button == sf::Mouse::Left) {
@@ -87,7 +94,7 @@ public:
                 }
                 break;
             case sf::Event::Resized:
-                renderer.calcNewCardSize(window);
+                renderer.calcNewSizes(window);
                 break;
         }
     }
@@ -99,7 +106,7 @@ public:
         std::optional<ObjectId> draggedCard = (activeDrag ? std::optional(currentDragID) : std::nullopt);
         // grab all decks from the object pool and render them.
         std::vector<ObjectId> decks = poolView_.ofType(ObjType::Deck);
-        for (int deckID : decks) {
+        for (ObjectId deckID : decks) {
             const Deck* deck = dynamic_cast<const Deck*>(poolView_.getPointer(deckID));
             renderer.renderDeck(window, deck, deckID, draggedCard);
         }
@@ -114,12 +121,27 @@ public:
             renderer.renderCard(window, currentDragID);
         }
 
+        std::vector<ObjectId> buttons = poolView_.ofType(ObjType::Button);
+        for (ObjectId btnID : buttons) {
+            renderer.renderButton(window, btnID);
+        }
+
         renderer.renderStatus(window, dt);
     }
 
     /*
         Event response functions
     */
+
+    void createdObject(int ID, double x, double y) override {
+        RenderController::createdObject(ID, x, y);
+
+        const PoolObject* obj = poolView_.getPointer(ID);
+
+        if (obj->type() == ObjType::Button) {
+            renderer.createBtn(ID);
+        }
+    }
 
     void movedCard(int cardID, int fromID, int toID) override {
         // Check if the destination is a hand
