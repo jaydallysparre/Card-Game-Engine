@@ -82,13 +82,8 @@ public:
 
 class Hand : public CardPool, public PoolObject {
 private:
-    // store cards id
-    std::vector<ObjectId> cards;
 public:
-    void addCardId(ObjectId cardId) {cards.push_back(cardId);}
-    void removeCardId(ObjectId cardId) {cards.erase(std::remove(cards.begin(), cards.end(), cardId), cards.end());}
-    const std::vector<ObjectId>& getCards() const {return cards;}
-    // Method for ObjectPool
+    // // Method for ObjectPool
     ObjType type() const override {return ObjType::Hand;}
 };
 
@@ -109,4 +104,11 @@ public:
     std::string name;
     ObjectId hand{};
     int score{0};
+};
+
+class Button : public PoolObject {
+public:
+    std::string text;
+    Button(std::string text) : text(text) {}
+    ObjType type() const override {return ObjType::Button;}
 };

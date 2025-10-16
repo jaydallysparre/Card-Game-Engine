@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "EventManager.hpp"
 #include "ObjectPoolViews.hpp"
 
@@ -21,6 +22,8 @@ protected:
     virtual void shuffled(int deckID) {}
     virtual void toggledObject(int ID) {}
     virtual void flippedCard(int ID) {}
+    virtual void setDescriptor(int ID, std::string str) {}
+    virtual void statusMsg(std::string msg) {}
 
     // lets us stop scene from running if busy
     virtual bool isBusy() = 0;

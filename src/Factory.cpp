@@ -17,6 +17,7 @@ ObjectId Factory::createDeck(bool full, bool shuffled) {
                 auto card = std::make_unique<Card>(s, r);
                 ObjectId cardId = view.add(std::move(card));
                 deck->addCard(cardId);
+                view.setParent(cardId, deckId);
             }
         }
     }
@@ -24,7 +25,19 @@ ObjectId Factory::createDeck(bool full, bool shuffled) {
     if (shuffled) {
         deck->shuffle();
     }
-
+    
     return deckId;
 }
 
+ObjectId Factory::createHand() {
+    auto handObject = std::make_unique<Hand>();
+    ObjectId handId = view.add(std::move(handObject));
+    view.addTag(handId, TAG_RECEIVABLE | TAG_RENDERABLE | TAG_GRABBABLE);
+    return handId;
+}
+
+ObjectId Factory::createButton(std::string text) {
+    auto button = std::make_unique<Button>(text);
+    ObjectId btnId = view.add(std::move(button));
+    return btnId;
+}

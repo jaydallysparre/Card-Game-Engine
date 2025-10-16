@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <iostream>
+#include <unordered_map>
 #include "PoolObject.hpp"
 #include "SceneObject.hpp"
 
@@ -14,13 +15,18 @@ constexpr uint32_t TAG_RENDERABLE = 1u << 3;
 
 class ObjectPool {
 private:
+    // Store parents ID of a card
+    std::unordered_map<int, int> parentsMap;
+    // Store objects
     std::vector<std::unique_ptr<PoolObject>> objects;
     ObjectId nextId{1};
+    // Current active player
     ObjectId activePlayer{0};
 
     static inline bool hasAny(uint32_t mask, uint32_t test) { return (mask & test) != 0; }
     static inline bool hasAll(uint32_t mask, uint32_t test) { return (mask & test) == test; }
 public:
+    // Add object to pool
     ObjectId add(std::unique_ptr<PoolObject> obj) {
         obj->id = nextId++;
         objects.push_back(std::move(obj));
@@ -34,27 +40,31 @@ public:
         }
         return nullptr;
     }
-
-    void setEnable(ObjectId id, bool on) { if (auto* o = getPointer(id)) o->enabled = on; };
+    // Add tag to object
     void addTag(ObjectId id, uint32_t tag) { if (auto* o = getPointer(id)) o->tags |= tag; };
+    // Rm object tag
     void rmTag(ObjectId id, uint32_t tag) { if (auto* o = getPointer(id)) o->tags &= ~tag; };
     
-    
+    // Set active player
     void setActivePlayer(ObjectId playerId) { activePlayer = playerId; }
+    // Set player hand
     void setPlayerHand(ObjectId playerId, ObjectId handId) {
         if (auto* p = getPointer(playerId)) if (p->type()==ObjType::Player) {
             static_cast<Player*>(p)->hand = handId;
         }
     }
 
+    // Add score
     void addToScore(ObjectId playerId, ObjectId point) {
         if (auto* p = getPointer(playerId)) if (p->type()==ObjType::Player) {
             static_cast<Player*>(p)->score += point;
         }
     }
 
+    // Return the active player (current's player turn)
     ObjectId returnActivePlayer() { return activePlayer; }
 
+    // Return hand id of current player
     ObjectId currentPlayerHandId() { 
         auto* p = getPointer(activePlayer);
         if (!p || p->type() != ObjType::Player) return 0;
@@ -62,6 +72,16 @@ public:
         return pl->hand; 
     }
 
+    // Set parent's id for card (which deck owns that card)
+    void setParent(ObjectId id, ObjectId parentId) {
+        parentsMap[id] = parentId;
+    }
+
+    // Get card's parent id
+    ObjectId getParent(ObjectId id) {
+        return parentsMap[id];
+    }
+ 
     //check if match some of the tags
     bool hasAnyTag(ObjectId id, uint32_t tag) const {
         if (auto* o = const_cast<ObjectPool*>(this)->getPointer(id)) {
@@ -103,6 +123,7 @@ public:
         return out;
     }
 
+    // return the deck that can grabbable
     std::vector<ObjectId> grabbableDeck() const {
         std::vector<ObjectId> out;
         for (auto& p : objects) {
@@ -111,6 +132,7 @@ public:
         return out;
     }
 
+    // return the deck that can receivable
     std::vector<ObjectId> receivableDeck() const {
         std::vector<ObjectId> out;
         for (auto& p : objects) {

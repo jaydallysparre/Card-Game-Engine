@@ -15,6 +15,13 @@ void SFMLApplication::run() {
         // rendering
         window.clear(sf::Color(44, 99, 47, 255));
         controller.render(window, dt);
+        
+        // update t factor with dt
+        if (!controller.isBusy()) {
+            auto dtEv = std::make_unique<UpdateTFactor>(dt);
+            eventManager.pushReqEvent(std::move(dtEv));
+        }
+
         window.display();
     }
 }

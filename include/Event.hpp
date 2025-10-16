@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 /*
     Event structs, store data regarding type of event, and other required data. Authoritative Events are data on the scene end;
     the scene controls the object pool directly. Request events are what the controller sends to the scene, to ask it to perform
@@ -13,12 +15,15 @@ enum class AuthEvent {
     MovedObject,
     Shuffled, 
     ToggledObject, 
-    FlippedCard
+    FlippedCard,
+    SetDescriptor,
+    StatusMsg
 };
 enum class ReqEvent {
     MoveCard, 
     PressButton, 
-    FlipCard
+    FlipCard,
+    UpdateTFactor
 };
 
 /*
@@ -93,6 +98,19 @@ struct FlippedCard : AuthoritativeEvent {
     FlippedCard(int ID) : AuthoritativeEvent(AuthEvent::FlippedCard), ID(ID) {}
 };
 
+struct SetDescriptor : AuthoritativeEvent {
+    const int ID;
+    std::string description;
+
+    SetDescriptor(int ID, std::string desc) : AuthoritativeEvent(AuthEvent::SetDescriptor), ID(ID), description(desc) {}
+};
+
+struct StatusMsg : AuthoritativeEvent {
+    std::string status;
+
+    StatusMsg(std::string status) : AuthoritativeEvent(AuthEvent::StatusMsg), status(status) {}
+};
+
 /*
     Request Events
 */
@@ -103,4 +121,16 @@ struct MoveCard : RequestEvent {
     const int toID;
 
     MoveCard(int ID, int fromID, int toID) : RequestEvent(ReqEvent::MoveCard), ID(ID), fromID(fromID), toID(toID) {}
+};
+
+struct PressButton : RequestEvent {
+    const int ID;
+
+    PressButton(int ID) : RequestEvent(ReqEvent::PressButton), ID(ID) {}
+};
+
+struct UpdateTFactor : RequestEvent {
+    const double newFactor;
+
+    UpdateTFactor(double newFactor) : RequestEvent(ReqEvent::UpdateTFactor), newFactor(newFactor) {}
 };
