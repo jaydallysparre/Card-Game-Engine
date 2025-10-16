@@ -117,13 +117,13 @@ public:
             renderer.renderHand(window, hand, handID, draggedCard);
         }
 
-        if (activeDrag && currentDragID != -1) {
-            renderer.renderCard(window, currentDragID);
-        }
-
         std::vector<ObjectId> buttons = poolView_.ofType(ObjType::Button);
         for (ObjectId btnID : buttons) {
             renderer.renderButton(window, btnID);
+        }
+
+        if (activeDrag && currentDragID != -1) {
+            renderer.renderCard(window, currentDragID);
         }
 
         renderer.renderStatus(window, dt);
