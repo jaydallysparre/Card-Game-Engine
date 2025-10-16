@@ -1,6 +1,6 @@
 #pragma once 
 
-#include "HiLoState.hpp"
+#include "HiloScene.hpp"
 #include "State.hpp"
 
 class SetupState: public State {
@@ -73,4 +73,5 @@ class CalculateScore: public State {
 };
 
 class GameEndState: public State {
+    // State for ending the game. 
 };
