@@ -13,4 +13,5 @@ public:
 
     ObjectId createDeck(bool full = true, bool shuffled = false);
     ObjectId createHand();
+    ObjectId createButton(std::string text);
 };

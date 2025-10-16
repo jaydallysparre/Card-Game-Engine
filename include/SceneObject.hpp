@@ -105,3 +105,10 @@ public:
     ObjectId hand{};
     int score{0};
 };
+
+class Button : public PoolObject {
+public:
+    std::string text;
+    Button(std::string text) : text(text) {}
+    ObjType type() const override {return ObjType::Button;}
+};

@@ -25,7 +25,7 @@ ObjectId Factory::createDeck(bool full, bool shuffled) {
     if (shuffled) {
         deck->shuffle();
     }
-
+    
     return deckId;
 }
 
@@ -36,3 +36,8 @@ ObjectId Factory::createHand() {
     return handId;
 }
 
+ObjectId Factory::createButton(std::string text) {
+    auto button = std::make_unique<Button>(text);
+    ObjectId btnId = view.add(std::move(button));
+    return btnId;
+}

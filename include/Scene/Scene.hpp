@@ -5,14 +5,16 @@
 #include <string>
 #include <unordered_map>
 #include <stdexcept>
+#include <iostream>
+#include <climits>
+#include <limits>
 
 #include "State.hpp"
 #include "EventManager.hpp"
 #include "SceneObject.hpp"
 #include "ObjectPoolViews.hpp"
 #include "Factory.hpp"
-#include <iostream>
-#include <climits>
+
 
 /*
     Scene
@@ -70,7 +72,6 @@ public:
         }
 
         currentState = factories[newState]();
-        currentState->run();
     }
 
     // Move card from deck to deck
@@ -112,6 +113,18 @@ public:
         }
     }
     
+    double getTFactor() {
+        return tFactor;
+    }
+    
+    void setTFactor(double newtFactor) {
+        tFactor = newtFactor;
+    }
+
+    void updateTFactor(double tFactorAdd) {
+        tFactor += tFactorAdd;
+    }
+
     //Receive from Auth event from controller, then execute the relevant Req events
     void receiveAndRespond() {
         while (eventManager.hasReqEvents()) {
@@ -124,6 +137,17 @@ public:
                     MoveCard* ev = static_cast<MoveCard*>(event.get());
                     moveCard(ev->ID, ev->fromID, ev->toID);
                     currentState->handleEvent(std::move(event));
+                    break;
+                }
+                case ReqEvent::PressButton: {
+                    PressButton* ev = static_cast<PressButton*>(event.get());
+                    // press button
+                    currentState->handleEvent(std::move(event));
+                    break;
+                }
+                case ReqEvent::UpdateTFactor: {
+                    UpdateTFactor* ev = static_cast<UpdateTFactor*>(event.get());
+                    updateTFactor(ev->newFactor);
                     break;
                 }
             }
