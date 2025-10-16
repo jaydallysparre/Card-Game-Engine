@@ -22,7 +22,8 @@ enum class AuthEvent {
 enum class ReqEvent {
     MoveCard, 
     PressButton, 
-    FlipCard
+    FlipCard,
+    UpdateTFactor
 };
 
 /*
@@ -120,4 +121,10 @@ struct MoveCard : RequestEvent {
     const int toID;
 
     MoveCard(int ID, int fromID, int toID) : RequestEvent(ReqEvent::MoveCard), ID(ID), fromID(fromID), toID(toID) {}
+};
+
+struct UpdateTFactor : RequestEvent {
+    const double newFactor;
+
+    UpdateTFactor(double newFactor) : RequestEvent(ReqEvent::UpdateTFactor), newFactor(newFactor) {}
 };

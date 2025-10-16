@@ -43,6 +43,8 @@ protected:
     // factory for building objects
     Factory objFactory;
 
+    // T factor (intended for time, steps, etc.)
+    double tFactor = 0.0;
 public:
     Scene(EventManager& em) : eventManager(em), sceneView{&pool}, ctrlView{&pool}, objFactory(sceneView) {}
 
