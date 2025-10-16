@@ -13,6 +13,11 @@ public:
         int deck1ID = objFactory.createDeck();
         int deck2ID = objFactory.createDeck(true, true);
         int deck3ID = objFactory.createDeck(false, false);
+        int hand1ID = objFactory.createHand();
+        
+        em.pushAuthEvent(std::make_unique<CreatedObject>(hand1ID, 0.5, 0.85)); 
+        em.pushAuthEvent(std::make_unique<SetDescriptor>(hand1ID, "Player Hand 1"));
+        
         em.pushAuthEvent(std::make_unique<CreatedObject>(deck1ID, 0.25, 0.5));
         em.pushAuthEvent(std::make_unique<CreatedObject>(deck2ID, 0.5, 0.5));
         em.pushAuthEvent(std::make_unique<CreatedObject>(deck3ID, 0.75, 0.5));

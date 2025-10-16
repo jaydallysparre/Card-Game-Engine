@@ -31,6 +31,12 @@ public:
             for (ObjectId cardId: deck->getCards()) {
                 positionHandler.registerObjectPos(cardId, x, y, deck->id);
             }
+        } else if (obj->type() == ObjType::Hand) {
+            const Hand* hand = static_cast<const Hand*>(obj);
+            
+            for (ObjectId cardId: hand->getCards()) {
+                positionHandler.registerObjectPos(cardId, x, y, hand->id);
+            }
         }
         positionHandler.registerObjectPos(ID, x, y);
     }

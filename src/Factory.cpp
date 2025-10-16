@@ -29,3 +29,10 @@ ObjectId Factory::createDeck(bool full, bool shuffled) {
     return deckId;
 }
 
+ObjectId Factory::createHand() {
+    auto handObject = std::make_unique<Hand>();
+    ObjectId handId = view.add(std::move(handObject));
+    view.addTag(handId, TAG_RECEIVABLE | TAG_RENDERABLE | TAG_GRABBABLE);
+    return handId;
+}
+

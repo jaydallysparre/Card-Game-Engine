@@ -38,6 +38,8 @@ class SFMLRenderer {
     // deck maps
     std::unordered_map<int, sf::FloatRect> deckBounds;
     std::unordered_map<int, sf::Text> deckLabels;
+    // hand maps
+    std::unordered_map<int, sf::FloatRect> handBounds;
 
     RenderPosition& positionHandler;
     ObjectPoolControllerView& view;
@@ -73,7 +75,12 @@ public:
             std::cerr << "Failed to load empty texture\n";
         }
 
+        if (!textureMap["hand_placeholder"].loadFromFile(path + "hand_placeholder.png")) {
+            std::cerr << "Failed to load hand placeholder\n";
+        }
+
         textureMap["empty"].setSmooth(true);
+        textureMap["hand_placeholder"].setSmooth(true);
 
         // load font
         if (!font.loadFromFile("examples/sfml/font/inter.ttf")) {
@@ -81,7 +88,7 @@ public:
         }
     }
 
-    void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID) {
+    void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID, std::optional<ObjectId> ignoreCardId = std::nullopt) {
         // if we have a label for this deck, render it first
         if (deckLabels.count(ID)) {
             renderDeckLabel(window, ID);
@@ -119,14 +126,55 @@ public:
 
         // render the top card in deck, if it exists
         if (topCards.first) {
-            tempRect = renderCard(window, *topCards.first);
+            if (!ignoreCardId || *ignoreCardId != *topCards.first) {
+                tempRect = renderCard(window, *topCards.first);
             
-            // combine hitboxes
-            deckBox = combineRect(deckBox, tempRect);
+                // combine hitboxes
+                deckBox = combineRect(deckBox, tempRect);
+            }    
         }
 
         deckBounds[ID] = deckBox;
 
+    }
+
+    void renderHand(sf::RenderWindow& window, const Hand* hand, int ID, std::optional<ObjectId> ignoreCardId = std::nullopt) {
+        const auto& cards = hand->getCards();
+        if (cards.empty()) {
+            // render an empty placeholder for the hand area
+            auto handPos = positionHandler.getPos(ID);
+            sf::Vector2f sfmlPos = {
+                static_cast<float>(handPos.first) * window.getSize().x,
+                static_cast<float>(handPos.second) * window.getSize().y
+            };
+            sf::Sprite placeholderSprite(textureMap["hand_placeholder"]);
+            sf::Vector2u texSize = textureMap["hand_placeholder"].getSize();
+            float scale = CARD_WIDTH / texSize.x;
+            placeholderSprite.setScale(scale, scale);
+            placeholderSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f);
+            placeholderSprite.setPosition(sfmlPos);
+            
+            window.draw(placeholderSprite);
+            
+            // Store its bounds for mouse interaction
+            handBounds[ID] = placeholderSprite.getGlobalBounds();
+            return;
+        }
+
+        sf::FloatRect combinedBounds;
+        bool firstCard = true;
+
+        for (ObjectId cardId : cards) {
+            sf::FloatRect cardBounds = renderCard(window, cardId);
+            if (firstCard) {
+                combinedBounds = cardBounds;
+                firstCard = false;
+            } else {
+                combinedBounds = combineRect(combinedBounds, cardBounds);
+            }
+        }
+
+        handBounds[ID] = combinedBounds;
     }
 
     void renderDeckLabel(sf::RenderWindow& window, int ID) {
@@ -185,6 +233,55 @@ public:
                 return ID;
         }
 
+        return std::nullopt;
+    }
+
+    sf::FloatRect getCardBounds(sf::RenderWindow& window, ObjectId cardId) {
+        auto cardPos = positionHandler.getPos(cardId);
+        sf::Vector2f sfmlPos = {
+            static_cast<float>(cardPos.first) * window.getSize().x,
+            static_cast<float>(cardPos.second) * window.getSize().y
+        };
+
+        const Card* card = static_cast<const Card*>(view.getPointer(cardId));
+        std::string cardKey = card->getRank() + card->getSuit();
+        if (!textureMap.count(cardKey)) return sf::FloatRect();
+
+        sf::Sprite cardSprite(textureMap[cardKey]);
+        sf::Vector2u texSize = textureMap[cardKey].getSize();
+        sf::Vector2f scaledSizes = {CARD_WIDTH/texSize.x, CARD_HEIGHT/texSize.y};
+        cardSprite.setScale(scaledSizes);
+        cardSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f);
+        cardSprite.setPosition(sfmlPos);
+        return cardSprite.getGlobalBounds();
+    }
+
+    std::optional<ObjectId> getHandAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+
+        for (const auto& [ID, rect]: handBounds) {
+            if (rect.contains(worldPos))
+                return ID;
+        }
+
+        return std::nullopt;
+    }
+
+    std::optional<ObjectId> getTopCardAtPosInHand(sf::RenderWindow& window, sf::Vector2i pos, int handID) {
+        const Hand* hand = static_cast<const Hand*>(view.getPointer(handID));
+        if (!hand) return std::nullopt;
+
+        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+
+        const auto& cards = hand->getCards();
+        // iterate backwards because the last card is rendered on top.
+        for (auto it = cards.rbegin(); it != cards.rend(); ++it) {
+            ObjectId cardId = *it;
+            sf::FloatRect bounds = getCardBounds(window, cardId);
+            if (bounds.contains(worldPos)) {
+                return cardId;
+            }
+        }
         return std::nullopt;
     }
 
