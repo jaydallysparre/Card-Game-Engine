@@ -129,14 +129,14 @@ public:
             recalculateHandLayout(toID);
         }
 
-        // Also check if the card came FROM a hand
+        // Also check if the card came from a hand
         const auto* fromObj = poolView_.getPointer(fromID);
         if (fromObj && fromObj->type() == ObjType::Hand) {
             // A card was moved FROM this hand, so update its layout too
             recalculateHandLayout(fromID);
         }
         
-        // The default animation for a card moving to a deck 
+        // The animation for a card moving to a deck 
         if (toObj && toObj->type() == ObjType::Deck) {
             auto toPos = positionHandler.getPos(toID);
             positionHandler.setWishPos(cardID, toPos.first, toPos.second, 0.5);

@@ -164,6 +164,7 @@ public:
         sf::FloatRect combinedBounds;
         bool firstCard = true;
 
+        //render card in hands
         for (ObjectId cardId : cards) {
             sf::FloatRect cardBounds = renderCard(window, cardId);
             if (firstCard) {
