@@ -31,14 +31,21 @@ public:
             case sf::Event::MouseButtonPressed:
             if (event.mouseButton.button == sf::Mouse::Left) {
                 auto cardIDAtPos = renderer.getTopCardAtPos(window, mousePos);
-                if (!cardIDAtPos) {
-                    break;
-                }
-                activeDrag = true;
-                busy = true;
 
-                // Store normalized position
-                currentDragID = *cardIDAtPos;
+                if (cardIDAtPos) {
+                    activeDrag = true;
+                    busy = true;
+
+                    // Store normalized position
+                    currentDragID = *cardIDAtPos;
+                }
+
+                auto btnIDAtPos = renderer.getButtonAtPos(window, mousePos);
+
+                if (btnIDAtPos) {
+                    auto pressButton = std::make_unique<PressButton>(*btnIDAtPos);
+                    em.pushReqEvent(std::move(pressButton));
+                }
             }
             break;
 
@@ -83,9 +90,14 @@ public:
 
         // grab all decks from the object pool and render them.
         std::vector<ObjectId> decks = poolView_.ofType(ObjType::Deck);
-        for (int deckID : decks) {
+        for (ObjectId deckID : decks) {
             const Deck* deck = dynamic_cast<const Deck*>(poolView_.getPointer(deckID));
             renderer.renderDeck(window, deck, deckID);
+        }
+
+        std::vector<ObjectId> buttons = poolView_.ofType(ObjType::Button);
+        for (ObjectId btnID : buttons) {
+            renderer.renderButton(window, btnID);
         }
 
         renderer.renderStatus(window, dt);
@@ -94,6 +106,11 @@ public:
     /*
         Event response functions
     */
+
+    void createdObject(int ID, double x, double y) override {
+        RenderController::createdObject(ID, x, y);
+        renderer.createBtn(ID)
+    }
 
     void movedCard(int cardID, int fromID, int toID) override {
         positionHandler.setParent(cardID, toID);

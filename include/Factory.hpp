@@ -12,4 +12,5 @@ public:
     Factory(ObjectPoolSceneView& view) : view(view) {}
 
     ObjectId createDeck(bool full = true, bool shuffled = false);
+    ObjectId createButton(std::string text);
 };

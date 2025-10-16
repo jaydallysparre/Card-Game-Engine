@@ -12,6 +12,7 @@ class SFMLRenderer {
     const int FONT_SIZE = 16;
     const int STATUS_SIZE = 12;
     const float STATUS_DURATION = 2.0f;
+    const float BTN_MARGIN = 5.0f;
 
     // current card sizes
     float CARD_WIDTH = 96.0f;
@@ -38,6 +39,10 @@ class SFMLRenderer {
     // deck maps
     std::unordered_map<int, sf::FloatRect> deckBounds;
     std::unordered_map<int, sf::Text> deckLabels;
+
+    // button maps
+    std::unordered_map<int, sf::FloatRect> btnBounds;
+    std::unordered_map<int, sf::Text> btnLabels;
 
     RenderPosition& positionHandler;
     ObjectPoolControllerView& view;
@@ -168,7 +173,7 @@ public:
 
         // basic drop shadow
         sf::Sprite shadowSprite = cardSprite;
-        shadowSprite.move(4.0f, 4.0f);
+        shadowSprite.move(6.0f, 6.0f);
         shadowSprite.setColor(sf::Color(0,0,0,20));
         window.draw(shadowSprite);
 
@@ -176,6 +181,29 @@ public:
 
         return cardSprite.getGlobalBounds();
     }
+
+    void renderButton(sf::RenderWindow& window, ObjectId ID) {
+        auto btnPos = positionHandler.getPos(ID);
+
+        // convert normalized position to actual position
+        sf::Vector2f sfmlPos { static_cast<float>(btnPos.first) * window.getSize().x,
+                               static_cast<float>(btnPos.second) * window.getSize().y };
+       
+        auto label = btnLabels[ID].getLocalBounds();
+
+        // set up button body
+        sf::RectangleShape body;
+        body.setSize({label.width + BTN_MARGIN, label.height + BTN_MARGIN});
+        auto bodyBounds = body.getLocalBounds();
+        body.setOrigin(std::round(bodyBounds.width/2.0f), std::round(bodyBounds.height/2.0f));
+        body.setPosition(sfmlPos);
+
+        btnLabels[ID].setPosition(sfmlPos);
+
+        window.draw(body);
+        window.draw(btnLabels[ID]);
+    }
+
 
     std::optional<ObjectId> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos, ObjectId ignoreID=UINT32_MAX) {
         sf::Vector2f worldPos = window.mapPixelToCoords(pos);
@@ -198,6 +226,17 @@ public:
         return deck->topCard();
     }
 
+    std::optional<ObjectId> getButtonAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+
+        for (const auto& [ID, rect]: btnBounds) {
+            if (rect.contains(worldPos))
+                return ID;
+        }
+
+        return std::nullopt;       
+    }
+
     void setDeckLabel(int ID, const std::string& str) {
         sf::Text label;
         label.setFont(font);
@@ -205,6 +244,19 @@ public:
         label.setCharacterSize(FONT_SIZE);
         label.setOrigin(std::round(label.getLocalBounds().width/2.0f), 0.0f);
         deckLabels[ID] = label;
+    }
+
+    void createBtn(ObjectId ID) {
+        const Button* btn = static_cast<const Button*>(view.getPointer(ID));
+        sf::Text label;
+        label.setFont(font);
+        label.setString(btn->text);
+        label.setOrigin(std::round(label.getLocalBounds().width/2.0f),
+                        std::round(label.getLocalBounds().height/2.0f));
+        btnLabels[ID] = label;
+
+        btnBounds[ID] = label.getLocalBounds();
+
     }
 
     void setStatus(std::string& status) {

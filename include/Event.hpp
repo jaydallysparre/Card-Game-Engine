@@ -123,6 +123,12 @@ struct MoveCard : RequestEvent {
     MoveCard(int ID, int fromID, int toID) : RequestEvent(ReqEvent::MoveCard), ID(ID), fromID(fromID), toID(toID) {}
 };
 
+struct PressButton : RequestEvent {
+    const int ID;
+
+    PressButton(int ID) : RequestEvent(ReqEvent::PressButton), ID(ID) {}
+};
+
 struct UpdateTFactor : RequestEvent {
     const double newFactor;
 
