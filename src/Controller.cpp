@@ -4,6 +4,9 @@ void Controller::init(ObjectPoolControllerView NewObjPool) {
     poolView_ = NewObjPool;
 }
 
+
+// receive events, dispatch relevant response
+// ugly boiler plate but what can you do
 void Controller::receiveAndRespond() {
     while (em.hasAuthEvents()) {
             // receive event from event manager
@@ -45,6 +48,15 @@ void Controller::receiveAndRespond() {
                     FlippedCard* ev = static_cast<FlippedCard*>(event.get());
                     flippedCard(ev->ID);
                     break;
+                }
+                case AuthEvent::SetDescriptor: {
+                    SetDescriptor* ev = static_cast<SetDescriptor*>(event.get());
+                    setDescriptor(ev->ID, ev->description);
+                    break;
+                }
+                case AuthEvent::StatusMsg: {
+                    StatusMsg* ev = static_cast<StatusMsg*>(event.get());
+                    statusMsg(ev->status);
                 }
             }
     }
