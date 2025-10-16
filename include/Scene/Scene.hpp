@@ -55,14 +55,14 @@ public:
 
     // Main game loop function, called every time
     void run() {
-        // Process all incoming events and delegate them to the current state.
-        receiveAndRespond();
-
         // Execute the current state's main logic for this frame.
         if (!currentState)
             throw std::runtime_error("No state at runtime\n");
 
         currentState->run();
+
+        // Process all incoming events and delegate them to the current state.
+        receiveAndRespond();
     }
 
     // Change state
