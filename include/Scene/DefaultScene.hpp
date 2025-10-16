@@ -4,7 +4,6 @@
 #include "DefaultState.hpp"
 
 class DefaultScene : public Scene {
-    ObjectId btnID;
 public:
     DefaultScene(EventManager& em) : Scene(em) {
         factories["DEFAULT"] = [&](){
@@ -14,7 +13,7 @@ public:
         int deck1ID = objFactory.createDeck();
         int deck2ID = objFactory.createDeck(true, true);
         int deck3ID = objFactory.createDeck(false, false);
-        btnID = objFactory.createButton("Shuffle");
+        int btnID = objFactory.createButton("Shuffle");
 
         em.pushAuthEvent(std::make_unique<CreatedObject>(deck1ID, 0.25, 0.5));
         em.pushAuthEvent(std::make_unique<CreatedObject>(deck2ID, 0.5, 0.5));

@@ -119,6 +119,7 @@ public:
                     PressButton* ev = static_cast<PressButton*>(event.get());
                     // press button
                     currentState->handleEvent(std::move(event));
+                    break;
                 }
                 case ReqEvent::UpdateTFactor: {
                     UpdateTFactor* ev = static_cast<UpdateTFactor*>(event.get());

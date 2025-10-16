@@ -23,6 +23,13 @@ public:
             std::string msg = "Card " + std::to_string(event->ID) + " moved from " + std::to_string(event->fromID) + " to " +  std::to_string(event->toID);
             auto statusMsg = std::make_unique<StatusMsg>(msg);
             em.pushAuthEvent(std::move(statusMsg));
+        } else if (ev->eventType == ReqEvent::PressButton) {
+            PressButton* event = static_cast<PressButton*>(ev.get());
+            auto decks = sceneView.ofType(ObjType::Deck);
+            if (decks.size() >= 2) {
+                Deck* deck = static_cast<Deck*>(sceneView.getPointer(decks[1]));
+                deck->shuffle();
+            }
         }
     }
 };

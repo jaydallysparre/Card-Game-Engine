@@ -12,7 +12,11 @@ class SFMLRenderer {
     const int FONT_SIZE = 16;
     const int STATUS_SIZE = 12;
     const float STATUS_DURATION = 2.0f;
-    const float BTN_MARGIN = 5.0f;
+
+    // button constants
+    const sf::Color BTN_COLOUR = sf::Color(0, 0, 0, 100);
+    const float BTN_MARGIN_X = 10.0f;
+    const float BTN_MARGIN_Y = 5.0f;
 
     // current card sizes
     float CARD_WIDTH = 96.0f;
@@ -57,6 +61,16 @@ class SFMLRenderer {
 
         return sf::FloatRect(left, top, right - left, bot - top);
     }
+
+    void renderDropShadow(sf::RenderWindow& window, const sf::Sprite& sprite) const {
+        // transparent black
+        sf::Color colour(0, 0, 0, 20);
+        sf::Sprite shadow(sprite);
+        shadow.move(6.0f, 6.0f);
+        shadow.setColor(colour);
+        window.draw(shadow);
+    }
+
 public:
     SFMLRenderer(RenderPosition& renderPos, ObjectPoolControllerView& view) : positionHandler(renderPos), view(view) {
         // generate file path names at runtime for our card-png examples.
@@ -171,12 +185,7 @@ public:
         cardSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f); // center-based positioning
         cardSprite.setPosition(sfmlPos);
 
-        // basic drop shadow
-        sf::Sprite shadowSprite = cardSprite;
-        shadowSprite.move(6.0f, 6.0f);
-        shadowSprite.setColor(sf::Color(0,0,0,20));
-        window.draw(shadowSprite);
-
+        renderDropShadow(window, cardSprite);
         window.draw(cardSprite);
 
         return cardSprite.getGlobalBounds();
@@ -189,19 +198,23 @@ public:
         sf::Vector2f sfmlPos { static_cast<float>(btnPos.first) * window.getSize().x,
                                static_cast<float>(btnPos.second) * window.getSize().y };
        
-        auto label = btnLabels[ID].getLocalBounds();
+        auto labelBounds = btnLabels[ID].getLocalBounds();
 
+        sf::Vector2f btnSize {labelBounds.width + 2 * BTN_MARGIN_X, labelBounds.height + 2 * BTN_MARGIN_Y};
         // set up button body
         sf::RectangleShape body;
-        body.setSize({label.width + BTN_MARGIN, label.height + BTN_MARGIN});
+        body.setSize(btnSize);
         auto bodyBounds = body.getLocalBounds();
-        body.setOrigin(std::round(bodyBounds.width/2.0f), std::round(bodyBounds.height/2.0f));
+        body.setOrigin(btnSize.x/2.0f, btnSize.y/4);
         body.setPosition(sfmlPos);
+        body.setFillColor(BTN_COLOUR);
 
         btnLabels[ID].setPosition(sfmlPos);
 
         window.draw(body);
         window.draw(btnLabels[ID]);
+
+        btnBounds[ID] = body.getGlobalBounds();
     }
 
 
@@ -250,13 +263,11 @@ public:
         const Button* btn = static_cast<const Button*>(view.getPointer(ID));
         sf::Text label;
         label.setFont(font);
+        label.setCharacterSize(FONT_SIZE);
         label.setString(btn->text);
         label.setOrigin(std::round(label.getLocalBounds().width/2.0f),
                         std::round(label.getLocalBounds().height/2.0f));
         btnLabels[ID] = label;
-
-        btnBounds[ID] = label.getLocalBounds();
-
     }
 
     void setStatus(std::string& status) {
@@ -278,7 +289,7 @@ public:
         window.draw(statusMsg);
     }
 
-    void calcNewCardSize(sf::RenderWindow& window) {
+    void calcNewSizes(sf::RenderWindow& window) {
         CARD_WIDTH = window.getSize().x * CARD_WIDTH_RATIO;
         CARD_HEIGHT = CARD_WIDTH / CARD_ASPECT_RATIO;
     }

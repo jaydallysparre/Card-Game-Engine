@@ -79,7 +79,7 @@ public:
                 }
                 break;
             case sf::Event::Resized:
-                renderer.calcNewCardSize(window);
+                renderer.calcNewSizes(window);
                 break;
         }
     }
@@ -109,7 +109,12 @@ public:
 
     void createdObject(int ID, double x, double y) override {
         RenderController::createdObject(ID, x, y);
-        renderer.createBtn(ID)
+
+        const PoolObject* obj = poolView_.getPointer(ID);
+
+        if (obj->type() == ObjType::Button) {
+            renderer.createBtn(ID);
+        }
     }
 
     void movedCard(int cardID, int fromID, int toID) override {
