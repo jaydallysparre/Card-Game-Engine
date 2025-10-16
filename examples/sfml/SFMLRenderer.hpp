@@ -399,6 +399,5 @@ public:
         // scale accordingly
         CARD_WIDTH = CARD_WIDTH_DEF * uniformScale;
         CARD_HEIGHT = CARD_WIDTH / (CARD_WIDTH_DEF/CARD_HEIGHT_DEF);
-        
     }
 };
