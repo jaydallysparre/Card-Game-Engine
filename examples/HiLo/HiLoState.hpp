@@ -15,11 +15,8 @@ enum class GameState {
 class HiLoScene: public Scene{
   // Set all the stuff needed for this game, which is technically one Deck.
   // These are some other counters required for this specific game.
-  int hL = 0;
+  ObjectId buttonPressed;
   // Do I need to change the object type too? or should I just use card here?
-  Card currentCard;
-  GameState currentState;
-
   public:
   // Method to set the currentCard
   void setCurrentCard(Card& card) {

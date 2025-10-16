@@ -5,7 +5,7 @@
 
 class SetupState: public State {
     ObjectPoolSceneView& sceneView = scene.getSceneView();
-    std::vector<ObjectID> deckIds = sceneView.ofType(ObjType::Deck);
+    std::vector<ObjectId> deckIds = sceneView.ofType(ObjType::Deck);
     const Deck* deck0 = static_cast<const Deck*>(view.getPointer(deckIds[0]));
     const Deck* deck1 = static_cast<const Deck*>(view.getPointer(deckIds[1]));
     auto topCard = deck0.topCard();
@@ -24,35 +24,51 @@ class SetupState: public State {
 };
 
 class PlayerInputState: public State {
+    // Assign the button ID to both 
     ObjectPoolSceneView& sceneView = scene.getSceneView();
-    std::vector<ObjectID> ButtonIds = sceneView.ofType(ObjType::Button);
-    const Deck* deck = static_cast<const Deck*>(view.getPointer(deckIds[]))
-    // How would i be able to check what button was pressed? 
+    std::vector<ObjectId> ButtonIds = sceneView.ofType(ObjType::Button);
+    const Button* button0 = static_cast<const Button*>(view.getPointer(ButtonIds[0]));
+    const Button* button1 = static_cast<const Button*>(view.getPointer(ButtonIds[1]));
+    // wait until the button is pressed.  
+    void handleEvent(std::unique_ptr<RequestEvent> ev){
+        switch (event -> eventType){
+            case ReqEvent::PressButton: {
+                PressButton* ev = static_cast<PressButton*>(event.get());
+                // Store the pressed button's ID into the scene's buttonPressed attribute. 
+                scene.buttonPressed = ev->ID;
+            }
+        }
+    }
     scene.changeState("CalculateScore");
 };
 
 class CalculateScore: public State {
     ObjectPoolSceneView& sceneView = scene.getSceneView();
-    std::vector<ObjectID> deckIds = sceneView.ofType(ObjType::Deck);
-    std::vector<ObjectID> cardIds = sceneView.ofType(ObjType::Card);
+    std::vector<ObjectId> deckIds = sceneView.ofType(ObjType::Deck);
+    std::vector<ObjectId> ButtonIds = sceneView.ofType(ObjType::Button);
     const Deck* deck0 = static_cast<const Deck*>(view.getPointer(deckIds[0]));
+    const Deck* deck1 = static_cast<const Deck*>(view.getPointer(deckIds[1]));
     const Deck* deck2 = static_cast<const Deck*>(view.getPointer(deckIds[2]));
+    const Button* buttonHigh = static_cast<const Button*>(view.getPointer(ButtonIds[0]));
+    const Button* buttonLow = static_cast<const Button*>(view.getPointer(ButtonIds[1]));
     // Move the next card from deck 0 to deck 2.
-    auto topCard = deck0.topCard();
-    moveCard(*topCard, deckIds[0], deckIds[2]);
-    // get the card scores of the top card of deck 0 and 1.
-    Card* topCard0 = deck0.topCard();
-    Card* topCard1 = deck1.topCard();
+    auto topCard0 = deck0.topCard();
+    moveCard(*topCard0, deckIds[0], deckIds[2]);
+    // get the card scores of the top card of deck 1 and 2.
+    auto topCard1 = deck1.topCard();
+    auto topCard2 = deck2.topCard();
 
     // calculate the scores of the individual cards. 
-    int card0Score = scene.cardScore(*topCard0);
     int card1Score = scene.cardScore(*topCard1);
+    int card2Score = scene.cardScore(*topCard2);
     
-    // Increment the score of player if cardscore of deck 1 is higher than deck 0.
-    if (card0Score > card1Score || hiLo == 1)
+    // Increment the score of player if cardscore of deck 1 is higher than deck 2. and the high button was pressed. 
+    if (card1Score > card2Score || *buttonHigh == buttonPressed)
     {scene.playerScore++;}
-    else if(card0Score < card1Score || hiLo == 0)
+    // Increment the score of player if cardscore of deck 1 is lower than deck 2. and the low button was pressed. 
+    else if(card1Score < card2Score || *buttonLow == buttonPressed)
     {scene.playerScore++;}
+    // Move to next state
     scene.changeState("SetupState");
 };
 
