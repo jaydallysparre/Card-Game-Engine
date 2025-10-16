@@ -13,12 +13,20 @@ class SFMLRenderer {
     const int STATUS_SIZE = 12;
     const float STATUS_DURATION = 2.0f;
 
-    // current card sizes
-    float CARD_WIDTH = 96.0f;
-    float CARD_HEIGHT = 128.0f;
+    // button constants
+    const sf::Color BTN_COLOUR = sf::Color(0, 0, 0, 100);
+    const float BTN_MARGIN_X = 10.0f;
+    const float BTN_MARGIN_Y = 5.0f;
 
-    const float CARD_WIDTH_RATIO = CARD_WIDTH/800.0f;
-    const float CARD_ASPECT_RATIO = CARD_WIDTH / CARD_HEIGHT;
+
+    // card constants
+    const float CARD_WIDTH_DEF = 96.0f;
+    const float CARD_HEIGHT_DEF = 128.0f;
+
+    // current card sizes
+    float CARD_WIDTH = CARD_WIDTH_DEF;
+    float CARD_HEIGHT = CARD_HEIGHT_DEF;
+
 
     // load textures into textureMap to save creating textures every frame
     std::unordered_map<std::string, sf::Texture> textureMap;
@@ -38,6 +46,12 @@ class SFMLRenderer {
     // deck maps
     std::unordered_map<int, sf::FloatRect> deckBounds;
     std::unordered_map<int, sf::Text> deckLabels;
+    // hand maps
+    std::unordered_map<int, sf::FloatRect> handBounds;
+
+    // button maps
+    std::unordered_map<int, sf::FloatRect> btnBounds;
+    std::unordered_map<int, sf::Text> btnLabels;
 
     RenderPosition& positionHandler;
     ObjectPoolControllerView& view;
@@ -52,6 +66,16 @@ class SFMLRenderer {
 
         return sf::FloatRect(left, top, right - left, bot - top);
     }
+
+    void renderDropShadow(sf::RenderWindow& window, const sf::Sprite& sprite) const {
+        // transparent black
+        sf::Color colour(0, 0, 0, 20);
+        sf::Sprite shadow(sprite);
+        shadow.move(6.0f, 6.0f);
+        shadow.setColor(colour);
+        window.draw(shadow);
+    }
+
 public:
     SFMLRenderer(RenderPosition& renderPos, ObjectPoolControllerView& view) : positionHandler(renderPos), view(view) {
         // generate file path names at runtime for our card-png examples.
@@ -73,7 +97,12 @@ public:
             std::cerr << "Failed to load empty texture\n";
         }
 
+        if (!textureMap["hand_placeholder"].loadFromFile(path + "hand_placeholder.png")) {
+            std::cerr << "Failed to load hand placeholder\n";
+        }
+
         textureMap["empty"].setSmooth(true);
+        textureMap["hand_placeholder"].setSmooth(true);
 
         // load font
         if (!font.loadFromFile("examples/sfml/font/inter.ttf")) {
@@ -81,7 +110,7 @@ public:
         }
     }
 
-    void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID) {
+    void renderDeck(sf::RenderWindow& window, const Deck* deck, int ID, std::optional<ObjectId> ignoreCardId = std::nullopt) {
         // if we have a label for this deck, render it first
         if (deckLabels.count(ID)) {
             renderDeckLabel(window, ID);
@@ -119,14 +148,56 @@ public:
 
         // render the top card in deck, if it exists
         if (topCards.first) {
-            tempRect = renderCard(window, *topCards.first);
+            if (!ignoreCardId || *ignoreCardId != *topCards.first) {
+                tempRect = renderCard(window, *topCards.first);
             
-            // combine hitboxes
-            deckBox = combineRect(deckBox, tempRect);
+                // combine hitboxes
+                deckBox = combineRect(deckBox, tempRect);
+            }    
         }
 
         deckBounds[ID] = deckBox;
 
+    }
+
+    void renderHand(sf::RenderWindow& window, const Hand* hand, int ID, std::optional<ObjectId> ignoreCardId = std::nullopt) {
+        const auto& cards = hand->getCards();
+        if (cards.empty()) {
+            // render an empty placeholder for the hand area
+            auto handPos = positionHandler.getPos(ID);
+            sf::Vector2f sfmlPos = {
+                static_cast<float>(handPos.first) * window.getSize().x,
+                static_cast<float>(handPos.second) * window.getSize().y
+            };
+            sf::Sprite placeholderSprite(textureMap["hand_placeholder"]);
+            sf::Vector2u texSize = textureMap["hand_placeholder"].getSize();
+            float scale = CARD_WIDTH / texSize.x;
+            placeholderSprite.setScale(scale, scale);
+            placeholderSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f);
+            placeholderSprite.setPosition(sfmlPos);
+            
+            window.draw(placeholderSprite);
+            
+            // Store its bounds for mouse interaction
+            handBounds[ID] = placeholderSprite.getGlobalBounds();
+            return;
+        }
+
+        sf::FloatRect combinedBounds;
+        bool firstCard = true;
+
+        //render card in hands
+        for (ObjectId cardId : cards) {
+            sf::FloatRect cardBounds = renderCard(window, cardId);
+            if (firstCard) {
+                combinedBounds = cardBounds;
+                firstCard = false;
+            } else {
+                combinedBounds = combineRect(combinedBounds, cardBounds);
+            }
+        }
+
+        handBounds[ID] = combinedBounds;
     }
 
     void renderDeckLabel(sf::RenderWindow& window, int ID) {
@@ -134,7 +205,7 @@ public:
 
         // convert normalized position to actual position
         sf::Vector2f sfmlPos { static_cast<float>(deckPos.first) * window.getSize().x,
-                                static_cast<float>(deckPos.second) * window.getSize().y };
+                               static_cast<float>(deckPos.second) * window.getSize().y };
    
         deckLabels[ID].setPosition({sfmlPos.x, sfmlPos.y + CARD_HEIGHT / 2.0f + 1});    
         window.draw(deckLabels[ID]);
@@ -166,16 +237,38 @@ public:
         cardSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f); // center-based positioning
         cardSprite.setPosition(sfmlPos);
 
-        // basic drop shadow
-        sf::Sprite shadowSprite = cardSprite;
-        shadowSprite.move(4.0f, 4.0f);
-        shadowSprite.setColor(sf::Color(0,0,0,20));
-        window.draw(shadowSprite);
-
+        renderDropShadow(window, cardSprite);
         window.draw(cardSprite);
 
         return cardSprite.getGlobalBounds();
     }
+
+    void renderButton(sf::RenderWindow& window, ObjectId ID) {
+        auto btnPos = positionHandler.getPos(ID);
+
+        // convert normalized position to actual position
+        sf::Vector2f sfmlPos { static_cast<float>(btnPos.first) * window.getSize().x,
+                               static_cast<float>(btnPos.second) * window.getSize().y };
+       
+        auto labelBounds = btnLabels[ID].getLocalBounds();
+
+        sf::Vector2f btnSize {labelBounds.width + 2 * BTN_MARGIN_X, labelBounds.height + 2 * BTN_MARGIN_Y};
+        // set up button body
+        sf::RectangleShape body;
+        body.setSize(btnSize);
+        auto bodyBounds = body.getLocalBounds();
+        body.setOrigin(btnSize.x/2.0f, btnSize.y/4);
+        body.setPosition(sfmlPos);
+        body.setFillColor(BTN_COLOUR);
+
+        btnLabels[ID].setPosition(sfmlPos);
+
+        window.draw(body);
+        window.draw(btnLabels[ID]);
+
+        btnBounds[ID] = body.getGlobalBounds();
+    }
+
 
     std::optional<ObjectId> getDeckAtPos(sf::RenderWindow& window, sf::Vector2i pos, ObjectId ignoreID=UINT32_MAX) {
         sf::Vector2f worldPos = window.mapPixelToCoords(pos);
@@ -185,6 +278,55 @@ public:
                 return ID;
         }
 
+        return std::nullopt;
+    }
+
+    sf::FloatRect getCardBounds(sf::RenderWindow& window, ObjectId cardId) {
+        auto cardPos = positionHandler.getPos(cardId);
+        sf::Vector2f sfmlPos = {
+            static_cast<float>(cardPos.first) * window.getSize().x,
+            static_cast<float>(cardPos.second) * window.getSize().y
+        };
+
+        const Card* card = static_cast<const Card*>(view.getPointer(cardId));
+        std::string cardKey = card->getRank() + card->getSuit();
+        if (!textureMap.count(cardKey)) return sf::FloatRect();
+
+        sf::Sprite cardSprite(textureMap[cardKey]);
+        sf::Vector2u texSize = textureMap[cardKey].getSize();
+        sf::Vector2f scaledSizes = {CARD_WIDTH/texSize.x, CARD_HEIGHT/texSize.y};
+        cardSprite.setScale(scaledSizes);
+        cardSprite.setOrigin(texSize.x / 2.0f, texSize.y / 2.0f);
+        cardSprite.setPosition(sfmlPos);
+        return cardSprite.getGlobalBounds();
+    }
+
+    std::optional<ObjectId> getHandAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+
+        for (const auto& [ID, rect]: handBounds) {
+            if (rect.contains(worldPos))
+                return ID;
+        }
+
+        return std::nullopt;
+    }
+
+    std::optional<ObjectId> getTopCardAtPosInHand(sf::RenderWindow& window, sf::Vector2i pos, int handID) {
+        const Hand* hand = static_cast<const Hand*>(view.getPointer(handID));
+        if (!hand) return std::nullopt;
+
+        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+
+        const auto& cards = hand->getCards();
+        // iterate backwards because the last card is rendered on top.
+        for (auto it = cards.rbegin(); it != cards.rend(); ++it) {
+            ObjectId cardId = *it;
+            sf::FloatRect bounds = getCardBounds(window, cardId);
+            if (bounds.contains(worldPos)) {
+                return cardId;
+            }
+        }
         return std::nullopt;
     }
 
@@ -198,6 +340,17 @@ public:
         return deck->topCard();
     }
 
+    std::optional<ObjectId> getButtonAtPos(sf::RenderWindow& window, sf::Vector2i pos) {
+        sf::Vector2f worldPos = window.mapPixelToCoords(pos);
+
+        for (const auto& [ID, rect]: btnBounds) {
+            if (rect.contains(worldPos))
+                return ID;
+        }
+
+        return std::nullopt;       
+    }
+
     void setDeckLabel(int ID, const std::string& str) {
         sf::Text label;
         label.setFont(font);
@@ -205,6 +358,17 @@ public:
         label.setCharacterSize(FONT_SIZE);
         label.setOrigin(std::round(label.getLocalBounds().width/2.0f), 0.0f);
         deckLabels[ID] = label;
+    }
+
+    void createBtn(ObjectId ID) {
+        const Button* btn = static_cast<const Button*>(view.getPointer(ID));
+        sf::Text label;
+        label.setFont(font);
+        label.setCharacterSize(FONT_SIZE);
+        label.setString(btn->text);
+        label.setOrigin(std::round(label.getLocalBounds().width/2.0f),
+                        std::round(label.getLocalBounds().height/2.0f));
+        btnLabels[ID] = label;
     }
 
     void setStatus(std::string& status) {
@@ -226,8 +390,14 @@ public:
         window.draw(statusMsg);
     }
 
-    void calcNewCardSize(sf::RenderWindow& window) {
-        CARD_WIDTH = window.getSize().x * CARD_WIDTH_RATIO;
-        CARD_HEIGHT = CARD_WIDTH / CARD_ASPECT_RATIO;
+    void calcNewSizes(sf::RenderWindow& window) {
+        //calculate scale factor based on smaller of either dimension
+        float widthScale = static_cast<float>(window.getSize().x) / 800.0f;
+        float heightScale = static_cast<float>(window.getSize().y) / 600.0f;
+        float uniformScale = std::min(widthScale, heightScale);
+        
+        // scale accordingly
+        CARD_WIDTH = CARD_WIDTH_DEF * uniformScale;
+        CARD_HEIGHT = CARD_WIDTH / (CARD_WIDTH_DEF/CARD_HEIGHT_DEF);
     }
 };

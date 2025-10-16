@@ -1,11 +1,11 @@
 #pragma once
 #include "ObjectPool.hpp"
 
+// Decide which side (Scene, Controller) can do something
 struct ObjectPoolSceneView {
     ObjectPool* p{};
     ObjectId add(std::unique_ptr<PoolObject> o) { return p->add(std::move(o)); }
     PoolObject* getPointer(ObjectId id) { return p->getPointer(id); } 
-    void setEnable(ObjectId id, bool on) { return p->setEnable(id, on); }
     void addTag(ObjectId id, uint32_t tag) { return p->addTag(id, tag); }
     void rmTag(ObjectId id, uint32_t tag) { return p->rmTag(id, tag); }
     auto ofType(ObjType type) const { return p->ofType(type); }
