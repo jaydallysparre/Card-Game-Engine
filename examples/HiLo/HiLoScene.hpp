@@ -7,10 +7,8 @@
 
 class HiLoScene: public Scene{
   // Variable to record the button that was pressed
-  protected:
-  ObjectId buttonPressed;
-  int playerScore = 0; 
   public:
+  int playerScore = 0; 
   HiLoScene(EventManage& em) : Scene(em) {
     factories["SETUP"] = [&](){
       return std::unique_ptr<State>(std::make_unique<SetupState>(*this, em));
