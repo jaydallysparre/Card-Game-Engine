@@ -70,17 +70,6 @@ public:
         return {card1, card2};
     }
 
-    // Calculate the card scores, was this removed intentionally?
-    int cardScore(Card& card) {
-        auto suitIterator = std::find(SUITS.begin(), SUITS.end(), card.getSuit());
-        auto rankIterator = std::find(RANKS.begin(), RANKS.end(), card.getRank());
-
-        int suitValue = std::distance(SUITS.begin(), suitIterator);
-        int rankValue = std::distance(RANKS.begin(), rankIterator);
-
-        return suitValue*13 + rankValue;
-    }
-
     // Shuffle the vector
     void shuffle() {
         std::random_device rand;

@@ -37,11 +37,21 @@ class HiLoScene: public Scene{
   GameState readGameState() {
     return currentState;
   }
+
+      // Calculate the card scores, was this removed intentionally?
+  int cardScore(Card& card) {
+      auto suitIterator = std::find(SUITS.begin(), SUITS.end(), card.getSuit());
+      auto rankIterator = std::find(RANKS.begin(), RANKS.end(), card.getRank());
+      int suitValue = std::distance(SUITS.begin(), suitIterator);
+      int rankValue = std::distance(RANKS.begin(), rankIterator);
+      return suitValue*13 + rankValue;
+  }
 };
 
 void state_showCard(HiLoScene& sceneName){
   ObjectPoolSceneView& sceneView = sceneName.getSceneView();
   std::vector<ObjectId> deckIds = sceneView.ofType(ObjType::Deck);  // IS THIS HOW I DO IT?
+  const Deck* deck = static_cast<const Deck*>(view.getPointer(deckIds[0]))
   if (deckIds[0].isEmpty()) {   // This should reference the first deck right?
     sceneName.setGameState(GameState::SHOW_SCORE);
   }

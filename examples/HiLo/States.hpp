@@ -4,37 +4,55 @@
 #include "State.hpp"
 
 class SetupState: public State {
-    void run(); // Do I need to restate this function?
-    if() {
-        // If the deck is empty, go to end state.
-        scene.changeState("GameEndState");
-    } 
-    else{
-        // Move the top card of deck2 to deck 0.
-        // Change the state to the next state.
-        scene.changeState("PlayerInputState");
+    ObjectPoolSceneView& sceneView = scene.getSceneView();
+    std::vector<ObjectID> deckIds = sceneView.ofType(ObjType::Deck);
+    const Deck* deck0 = static_cast<const Deck*>(view.getPointer(deckIds[0]));
+    const Deck* deck1 = static_cast<const Deck*>(view.getPointer(deckIds[1]));
+    auto topCard = deck0.topCard();
+    void run() {
+        if(topCard) {
+            // Move the top card of deck0 to deck1.
+            moveCard(*topCard, deckIds[0], deckIds[1]); // NEED TO ASK ABOUT HOW TO GET TOPCARD ID
+            // Change the state to the next state.
+            scene.changeState("PlayerInputState");
+        } 
+        else{
+            // If the deck is empty, go to end state.
+            scene.changeState("GameEndState");
+        }
     }
 };
 
 class PlayerInputState: public State {
-    // Request an event to check if the user moved the card to deck 1 or deck 3.
-    if() { // if the card is moved to deck1
-        scene.changeState("CalculateScoreHigh");
-    }
-    else { // card is moved to deck3
-        scene.changeState("CalculateScoreLow");
-    }
+    ObjectPoolSceneView& sceneView = scene.getSceneView();
+    std::vector<ObjectID> ButtonIds = sceneView.ofType(ObjType::Button);
+    const Deck* deck = static_cast<const Deck*>(view.getPointer(deckIds[]))
+    // How would i be able to check what button was pressed? 
+    scene.changeState("CalculateScore");
 };
 
-class CalculateScoreHigh: public State {
+class CalculateScore: public State {
+    ObjectPoolSceneView& sceneView = scene.getSceneView();
+    std::vector<ObjectID> deckIds = sceneView.ofType(ObjType::Deck);
+    std::vector<ObjectID> cardIds = sceneView.ofType(ObjType::Card);
+    const Deck* deck0 = static_cast<const Deck*>(view.getPointer(deckIds[0]));
+    const Deck* deck2 = static_cast<const Deck*>(view.getPointer(deckIds[2]));
+    // Move the next card from deck 0 to deck 2.
+    auto topCard = deck0.topCard();
+    moveCard(*topCard, deckIds[0], deckIds[2]);
     // get the card scores of the top card of deck 0 and 1.
-    // Increment the score of player if cardscore of deck 1 is higher than deck 0.
-    scene.changeState("SetupState");
-};
+    Card* topCard0 = deck0.topCard();
+    Card* topCard1 = deck1.topCard();
 
-class CalculateScoreLow: public State {
-    // get the card scores of the top card of deck 0 and 3.
-    // Increment the score of player if cardscore of deck 0 is higher than deck 3.
+    // calculate the scores of the individual cards. 
+    int card0Score = scene.cardScore(*topCard0);
+    int card1Score = scene.cardScore(*topCard1);
+    
+    // Increment the score of player if cardscore of deck 1 is higher than deck 0.
+    if (card0Score > card1Score || hiLo == 1)
+    {scene.playerScore++;}
+    else if(card0Score < card1Score || hiLo == 0)
+    {scene.playerScore++;}
     scene.changeState("SetupState");
 };
 
