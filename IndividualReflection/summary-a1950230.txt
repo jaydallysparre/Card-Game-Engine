@@ -1,0 +1,35 @@
+Jay Dally-Sparre (a1950230)
+
+Project: DeckWorks
+
+1. Contributions
+I played a key role in the vision and design of this project, designing the main architecture, and developing both solo and collaboratively much of the project. Below, I will outline in detail what I worked on.
+
+- Architecture
+I designed the main architecture that the game uses, specifically the scene/controller separation; I designed the engine in this matter because I was very intent on the game being separate from the frontend.
+
+- Application, Controller
+Most of my work centered around the controller side; here I was responsible for implementing the base controller, as well as the specific SFML frontend controller we made. We created the application class because I figured that different frontends would need to have slightly different application loops; my intent was that a developer could take our engine, and write their own CLI frontend if they wanted, or GUI, or even headless (so they could run simulations).
+
+- Scene
+I did some work on scene class, specifically regarding how it fit into the general architecture (so early on, I designed the outline for the base methods), as well as some of the newer components, like the factory interface between the scene class and the object pool.
+
+- Event System
+I designed the event system as a communication layer between the Scene and Controller; my intention was to keep these systems as decoupled as possible, so I created this as a minimally exposed interface between the two. Specifically, by receiving and dispatching these standardised events, we ensure that we don't really care what the frontend actually is, but instead just about how it responds to and outputs events. Events were kept deliberately very simple, just being structs, because really what they represent is the main way we pass data between the frontend and the backend of the project.
+
+- Rendering
+I worked on the core rendering logic, both SFML specific and also the more general classes, such as RenderPosition. RenderPosition is a class I designed to store position in a normalized coordinate space, and provides helper methods for computing smooth interpolated animations using sinusoids. I also worked on the SFMLRenderer logic for displaying decks, cards, and buttons, and also for computing collision detection (did the user click on a deck/card/button? etc).
+
+- BinaryAdder Game
+I worked on a 4-bit binary adder game collaboratively to showcase the power of our card game engine.
+
+2. Process
+Our team was very active and communicated very often, which led to effective collaboration on the project. Designing an engine is a very complex project that you can't really do on the fly, so between the team members a lot of thought was put into the architecture of the project. We did a good job of separating responsibilities to each other and I feel as though we all worked as a team to create something that ended up working really well in the end.
+
+3. Learning experience
+This project ended up being far more complex than I had initially envisioned. I think this was a good thing however; I got a lot more experience both in the design of a complex architecture, and the problems that arise when trying to implement this. As well, this is my first time doing a group coding assessment, so it took me a little bit to adjust to the workflow of working with others; typically when you code alone, you can follow a very spontaneous approach, but when you work in a group, you need to be far more deliberate; this meant that for the first time, instead of making large refactors on a whim, I had to reach out to my group first, communicate regarding the change, the consequences of it, etc. Fortunately, my group members were very responsive and active, so this was pretty painless, and being so deliberate meant that the code quality was better in the end as well. 
+I also wanted to use this project as an opportunity to learn and use more modern C++ features that I previously didn't know. We utilised smart pointers, which were something that I was previously unfamiliar with, and helped with the memory management on this project. Smart pointers are particularly interesting, because when using them you are forced to consider ownership and lifetimes very closely, which led to sharper thinking regarding our project architecture as well. We only ended up using unique_ptr for this project, as everything could be designed such that ownership was direct.
+
+
+4. Reflection
+Overall I am happy with the final product, and I think that our team worked effectively, and collaboratively to achieve it. In the end, we created an engine that decouples the frontend logic from the backend, with some example games to boot, which achieved our initial goal. However, I think I speak for our entire team that if we were to sit down and do this project again, there would be some aspects that we would change; the architecture was very complex, and often led to some pretty clunky, and relatively boilerplate heavy code (more specifically when it came to receiving and dispatching events). In this sense, it was a really instructive learning experience - when you're designing, and developing an engine, changing one thing now can have many different consequences down the line, and you may be forced into design decisions that you don't want to make. Both in spite of, and because of this, I learned a ton about designing big, scalable and modular architecture, and I learned a lot of C++ in the process as well. Equally as important, I learned about how to collaborate on a large software project like this, which was a challenge itself. Next time, I will aim to see ahead with regards to project architecture, and aim to reduce boilerplate and keep it as simple as possible.
