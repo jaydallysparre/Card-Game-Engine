@@ -19,6 +19,7 @@ private:
     std::unordered_map<int, double> elapsed;
     std::unordered_map<int, double> duration;
 
+    double PI = 3.1415926535897932384;
     // vector of finished animations for clean-up
     std::vector<int> finishedAnims;
     void calcNewPos(int ID);

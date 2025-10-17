@@ -10,7 +10,7 @@ void RenderPosition::calcNewPos(int ID) {
     }
     
     // Easing factor, using sin for smooth transitions.
-    double ease = std::sin(M_PI * elapsed[ID] / (2 * duration[ID]));
+    double ease = std::sin(PI * elapsed[ID] / (2 * duration[ID]));
 
     objectPos[ID].first = animStartPos[ID].first + (animWishPos[ID].first - animStartPos[ID].first) * ease;
     objectPos[ID].second = animStartPos[ID].second + (animWishPos[ID].second - animStartPos[ID].second) * ease;
