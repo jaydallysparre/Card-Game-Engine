@@ -89,3 +89,30 @@ std::vector<ObjectId> ObjectPool::receivableDeck() const {
     }
     return out;
 }
+
+void ObjectPool::remove(ObjectId id) {
+    // if this object is held by another, remove from parent container
+    if (parentsMap.count(id)) {
+        if (auto* rawPtr = getPointer(parentsMap[id])) {
+            if (rawPtr->type() == ObjType::Deck) {
+                Deck* deck = static_cast<Deck*>(rawPtr);
+                deck->removeCard(id);
+
+            } else if (rawPtr->type() == ObjType::Hand) {
+                Hand* hand = static_cast<Hand*>(rawPtr);
+                hand->removeCard(id);
+            }
+        }
+    }
+
+    parentsMap.erase(id);
+
+    for (auto it = objects.begin(); it != objects.end(); it++) {
+        if (*it && (*it)->id == id) {
+            objects.erase(it);
+            break;
+        }
+    }
+
+    if (activePlayer == id) activePlayer = 0;
+}

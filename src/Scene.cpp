@@ -17,7 +17,7 @@ void Scene::changeState(const std::string& newState) {
     currentState = factories[newState]();
 }
 
-void Scene::moveCard(int ID, int fromID, int toID) {
+bool Scene::moveCard(int ID, int fromID, int toID) {
     PoolObject* fromObj = sceneView.getPointer(fromID);
     PoolObject* toObj = sceneView.getPointer(toID);
     // both hand and deck inherits cardpool, so cast to cardpool type
@@ -27,20 +27,28 @@ void Scene::moveCard(int ID, int fromID, int toID) {
     if (!fromPool || !toPool) {
         auto msg = std::make_unique<StatusMsg>("Invalid card container");
         eventManager.pushAuthEvent(std::move(msg));
-        return;
+        return false;
     }
-    if (!toObj->tags & TAG_RECEIVABLE) {
+
+    if (!(fromObj->tags & TAG_GRABBABLE)) {
+        auto msg = std::make_unique<StatusMsg>("Cannot grab cards from this container");
+        eventManager.pushAuthEvent(std::move(msg));
+        return false;
+    }
+
+    if (!(toObj->tags & TAG_RECEIVABLE)) {
         auto msg = std::make_unique<StatusMsg>("This container cannot receive cards");
         eventManager.pushAuthEvent(std::move(msg));
-        return;
+        return false;
     }
+
     // handle if hand is full
     if (toObj->type() == ObjType::Hand) {
         Hand* hand = static_cast<Hand*>(toObj);
         if (hand->getCards().size() >= 10) {
             auto msg = std::make_unique<StatusMsg>("Hand is full (Max 10 cards)");
             eventManager.pushAuthEvent(std::move(msg));
-            return;
+            return false;
         }
     }
     if (fromPool->removeCard(ID)) {
@@ -49,6 +57,7 @@ void Scene::moveCard(int ID, int fromID, int toID) {
         auto movedCard = std::make_unique<MovedCard>(ID, fromID, toID);
         eventManager.pushAuthEvent(std::move(movedCard));
     }
+    return true;
 }
 
 double Scene::getTFactor() {
@@ -72,8 +81,9 @@ void Scene::receiveAndRespond() {
         switch (event->eventType) {
             case ReqEvent::MoveCard: {
                 MoveCard* ev = static_cast<MoveCard*>(event.get());
-                moveCard(ev->ID, ev->fromID, ev->toID);
-                currentState->handleEvent(std::move(event));
+                if (moveCard(ev->ID, ev->fromID, ev->toID)) {
+                    currentState->handleEvent(std::move(event));
+                }
                 break;
             }
             case ReqEvent::PressButton: {

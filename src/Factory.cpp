@@ -1,7 +1,7 @@
 #include "Factory.hpp"
 
-const std::vector<std::string> Factory::SUITS = {"H", "D", "C","S"};
-const std::vector<std::string> Factory::RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
+const std::unordered_set<std::string> Factory::SUITS = {"H", "D", "C","S"};
+const std::unordered_set<std::string> Factory::RANKS = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
 
 ObjectId Factory::createDeck(bool full, bool shuffled) {
     // create deck object
@@ -27,6 +27,24 @@ ObjectId Factory::createDeck(bool full, bool shuffled) {
     }
     
     return deckId;
+}
+
+std::optional<ObjectId> Factory::createCard(std::string suit, std::string rank, ObjectId toDeckID) {
+    auto* rawDeckPtr = view.getPointer(toDeckID);
+    if (!rawDeckPtr) return std::nullopt;
+
+    Deck* deck = static_cast<Deck*>(rawDeckPtr);
+
+    if (!SUITS.count(suit) || !RANKS.count(rank))  return std::nullopt;
+
+    auto cardObject = std::make_unique<Card>(suit, rank);
+    ObjectId cardId = view.add(std::move(cardObject));
+    
+    deck->addCard(cardId);
+    view.setParent(cardId, toDeckID);
+    view.addTag(cardId, TAG_RENDERABLE);
+
+    return cardId;
 }
 
 ObjectId Factory::createHand() {

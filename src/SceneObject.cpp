@@ -18,6 +18,10 @@ std::vector<ObjectId> CardPool::getCards() const {
     return cardPool;
 }
 
+bool CardPool::isEmpty() {
+    return cardPool.empty();
+}
+
 // Deck Implementation
 std::optional<ObjectId> Deck::topCard() const {
     if (!cardPool.empty()) {
