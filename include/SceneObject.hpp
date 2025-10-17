@@ -31,7 +31,7 @@ public:
 
 /*
     Card Pool
-    Base class for
+    Base class for card containers
 */
 class CardPool {
 protected:
@@ -40,8 +40,14 @@ public:
     void addCard(ObjectId id);
     bool removeCard(ObjectId id);
     std::vector<ObjectId> getCards() const;
+    bool isEmpty();
 };
 
+
+/*
+    Deck
+    Contains methods only relevant to deck, such as getting the top card and shuffling
+*/
 class Deck : public CardPool, public PoolObject {
 public:
     // Return the top card of the vector 
@@ -60,6 +66,11 @@ public:
     ObjType type() const override {return ObjType::Hand;}
 };
 
+/*
+    Text
+    Display text on the screen.
+*/
+
 class Text : public PoolObject {
     private: 
     std::vector<std::string> screenText; 
@@ -69,6 +80,12 @@ class Text : public PoolObject {
     ObjType type() const override {return ObjType::Text;}
 };
 
+
+/*
+    Player
+    Store name, hand, and score.
+*/
+
 class Player : public PoolObject {
 public:
     ObjType type() const override {return ObjType::Player;}
@@ -76,6 +93,11 @@ public:
     ObjectId hand{};
     int score{0};
 };
+
+/*
+    Button
+    Add buttons that can be pressed via events.
+*/
 
 class Button : public PoolObject {
 public:

@@ -61,4 +61,6 @@ public:
     std::vector<ObjectId> grabbableDeck() const;
     // return the deck that can receivable
     std::vector<ObjectId> receivableDeck() const;
+    // remove from pool
+    void remove(ObjectId id);
 };
