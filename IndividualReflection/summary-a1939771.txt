@@ -1,5 +1,5 @@
 The parts of code that I wrote are:
-SceneObject.hpp/cpp, HiLoState.hpp, and HiLoScene.hpp. 
+SceneObject.hpp/cpp, HiLoState.hpp, HiLoScene.hpp, HiLoMain.cpp, and everything in the test directory. 
 
 Our team developed our project with constant and clear communication throughout the project. 
 We've discussed the topic together, generated the skeleton, and allocated tasks to each group member.
@@ -21,9 +21,9 @@ Communication, discussion of ideas and updating the existing structure, resolvin
 For things that did not go well, I can't say anything about my teammates, but I personally had a definitive problem with my ability to code.
 This led to me putting in more effort in understanding the language and less progress on my side of development, which is not ideal.
 I thought that I could learn as we progress, but in the end, the amount of things I needed to learn to understand the code overwhelmed me. 
-Although this issue was resolved within the team by expressing my inability to code complex algorithms and code architectures in c++, I think it whould've been better if I had more knowledge about code before starting.
+Although this issue was resolved by expressing my inability to code complex algorithms and code architectures in c++, I think it whould've been better if I had more knowledge about code before starting.
 I thought that my code knowledge was sufficient enough to contribute to small scale coding projects, but I have been wrong. 
-Moving onwards, I will try to learn more fundamental code and code practices to not weigh the team down.
+Moving onwards, I will try to learn more fundamental code and code practices to make sure I can contribute more than I did for this project.
 
-Overall, it was a great eye-opening experience for me and I was able to learn a lot of coding concepts such as factory functions, state code structures, how to effectively use references and pointers, proper naming conventions used in the industry, and so on.
+Overall, it was a great eye-opening experience for me and I was able to learn a lot of coding concepts such as factory functions, state code structures, how to effectively use references and pointers, proper naming conventions used in the industry, assert functions, and more.
 I am thankful to my teammates for understanding my situation and helping me throughout the project. 
