@@ -1,14 +1,12 @@
-The parts of code that I wrote are:
-SceneObject.hpp/cpp, HiLoState.hpp, HiLoScene.hpp, HiLoMain.cpp, and everything in the test directory. 
+The parts of code I wrote and the parts that I've worked on are:
+SceneObject.hpp/cpp, helped create the BinaryAdder example game, and help develop the architecture of the program.
 
 Our team developed our project with constant and clear communication throughout the project. 
 We've discussed the topic together, generated the skeleton, and allocated tasks to each group member.
 
 At the start, the project started out simple so I was able to contribute well. 
-However, as the project developed, our group started to use more advanced c++ coding practicies and systems that I was not able to fully follow as someone not comfortable with the language.
-I expressed this to my group project team members, and they asked me to create an implementation instead.
-
-From there, I tried to create a simple card game that utilised what our group members created.
+However, as the project developed, our group started to use more advanced c++ coding practicies and systems that I was not able to fully follow.
+I expressed this to my group project team members, and they asked me to help with the code architecture and help create an implementation.
 
 During the entire process, our team was able to achieve excellent communication with each other, responding to messages in a timely manner and any misunderstandings were solved clearly with further conversation.
 
@@ -18,10 +16,10 @@ By overcoming that fear and interacting with my group members more frequently, I
 From this experience, I learned that trying to always solve a problem by myself is not the best thing in terms of myself and for the team as a whole. 
 
 Communication, discussion of ideas and updating the existing structure, resolving issues worked very well within our group.
-For things that did not go well, I can't say anything about my teammates, but I personally had a definitive problem with my ability to code.
+For things that did not go well, I can't say anything about my teammates, but I personally had a problem with my ability to code.
 This led to me putting in more effort in understanding the language and less progress on my side of development, which is not ideal.
 I thought that I could learn as we progress, but in the end, the amount of things I needed to learn to understand the code overwhelmed me. 
-Although this issue was resolved by expressing my inability to code complex algorithms and code architectures in c++, I think it whould've been better if I had more knowledge about code before starting.
+Although this issue was resolved within the team and I got to contribute to the project, I think it whould've been better if I had more knowledge about code before starting.
 I thought that my code knowledge was sufficient enough to contribute to small scale coding projects, but I have been wrong. 
 Moving onwards, I will try to learn more fundamental code and code practices to make sure I can contribute more than I did for this project.
 
