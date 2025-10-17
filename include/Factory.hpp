@@ -2,6 +2,8 @@
 
 #include "ObjectPoolViews.hpp"
 #include "SceneObject.hpp"
+#include <optional>
+#include <unordered_set>
 
 /*
     Factory
@@ -11,12 +13,13 @@
 class Factory {
     ObjectPoolSceneView& view;
 
-    static const std::vector<std::string> SUITS;
-    static const std::vector<std::string> RANKS;
+    static const std::unordered_set<std::string> SUITS;
+    static const std::unordered_set<std::string> RANKS;
 public:
     Factory(ObjectPoolSceneView& view) : view(view) {}
 
     ObjectId createDeck(bool full = true, bool shuffled = false);
+    std::optional<ObjectId> createCard(std::string suit, std::string rank, ObjectId toDeckID);
     ObjectId createHand();
     ObjectId createButton(std::string text);
 };

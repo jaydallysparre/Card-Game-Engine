@@ -16,7 +16,7 @@
 
 using SceneFactory = std::function<std::unique_ptr<Scene>(EventManager&)>;
 
-template <typename ControllerType>
+template <typename ControllerType, class SpecificScene>
 class Application {
 protected:
     ControllerType controller;
@@ -37,7 +37,7 @@ protected:
 
 public:
     Application() : controller(eventManager) {
-        currentScene = std::make_unique<DefaultScene>(eventManager);
+        currentScene = std::make_unique<SpecificScene>(eventManager);
         attatchControllerToCurrent();
     }
 

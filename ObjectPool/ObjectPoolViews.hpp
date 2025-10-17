@@ -20,6 +20,7 @@ struct ObjectPoolSceneView {
     auto addToScore(ObjectId playerId, ObjectId point) { return p->addToScore(playerId, point); }
     auto returnActivePlayer() { return p->returnActivePlayer(); }
     auto currentPlayerHandId() { return p->currentPlayerHandId(); }
+    void remove(ObjectId id) { p->remove(id); }
 };
 
 struct ObjectPoolControllerView {

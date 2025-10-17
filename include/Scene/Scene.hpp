@@ -26,12 +26,14 @@
 using StateFactory = std::function<std::unique_ptr<State>()>;
 
 class Scene {
+    friend class State;
 private:
     // the currentState to execute
     std::unique_ptr<State> currentState;
+
+protected:
     // reference to the EventManager for communication
     EventManager& eventManager;
-protected:
     /// state factory registry 
     std::unordered_map<std::string, StateFactory> factories;
     // scene view
@@ -53,7 +55,7 @@ public:
     // Change state
     void changeState(const std::string& newState);
     // Move card from deck to deck
-    void moveCard(int ID, int fromID, int toID);
+    bool moveCard(int ID, int fromID, int toID);
     double getTFactor();
     void setTFactor(double newtFactor);
     void updateTFactor(double tFactorAdd);
