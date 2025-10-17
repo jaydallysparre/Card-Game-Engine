@@ -1,4 +1,4 @@
-HEADERS = -Iinclude -Iinclude/Render -Iinclude/Scene -IObjectPool
+HEADERS = -Iinclude -Iinclude/Render -Iinclude/Scene -Iinclude/ObjectPool
 
 FILES = src/*.cpp
 
