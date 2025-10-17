@@ -7,21 +7,32 @@
 
 #include "PoolObject.hpp"
 
+/*
+    Objects file
+    Here we define all relevant objects for the games.
+*/
+
+
+/*
+    Card
+    Represents cards, has a suit and rank.
+*/
+
 class Card : public PoolObject {
 private:
     std::string suit;
     std::string rank;
-
 public:
     Card(std::string s, std::string r) : suit(s), rank(r) {}
-
     std::string getSuit() const {return suit;}
     std::string getRank() const {return rank;}
-    ObjectId getId() const {return id;}
-
     ObjType type() const override {return ObjType::Card;}
 };
 
+/*
+    Card Pool
+    Base class for
+*/
 class CardPool {
 protected:
     std::vector<ObjectId> cardPool;
@@ -58,30 +69,14 @@ public:
     }
 
     // Return the top 2 cards of the vector
-    std::pair<std::optional<ObjectId>, std::optional<ObjectId>> top2Cards() const {
-        std::optional<ObjectId> card1, card2;
-
-        if (!cardPool.empty())
-            card1 = cardPool.back();
-        
-        if (cardPool.size() >= 2)
-            card2 = *(cardPool.rbegin() + 1);
-
-        return {card1, card2};
-    }
-
+    std::pair<std::optional<ObjectId>, std::optional<ObjectId>> top2Cards() const;
     // Shuffle the vector
-    void shuffle() {
-        std::random_device rand;
-        auto rng = std::default_random_engine {rand()};
-        std::shuffle(std::begin(cardPool), std::end(cardPool), rng);
-    }
+    void shuffle();
     // Extra functions for ObjectPool
     ObjType type() const override {return ObjType::Deck;}
 };
 
 class Hand : public CardPool, public PoolObject {
-private:
 public:
     // // Method for ObjectPool
     ObjType type() const override {return ObjType::Hand;}
@@ -91,9 +86,7 @@ class Text : public PoolObject {
     private: 
     std::vector<std::string> screenText; 
     public: 
-    void addText(std::string newText) {
-        screenText.push_back(newText);
-    }
+    void addText(std::string newText);
     // Method for ObjectPool
     ObjType type() const override {return ObjType::Text;}
 };

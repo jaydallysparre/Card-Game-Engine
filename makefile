@@ -4,7 +4,7 @@ FILES = src/*.cpp
 
 LIBS = -lsfml-graphics -lsfml-window -lsfml-system
 
-SFML_SPECIFIC = -Iexamples/sfml examples/sfml/*.cpp
+SFML_SPECIFIC = -Iexamples/sfml
 
 EXEC = cge
 
