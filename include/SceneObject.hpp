@@ -7,6 +7,17 @@
 
 #include "PoolObject.hpp"
 
+/*
+    Objects file
+    Here we define all relevant objects for the games.
+*/
+
+
+/*
+    Card
+    Represents cards, has a suit and rank.
+*/
+
 class Card : public PoolObject {
 private:
     std::string suit;
@@ -18,6 +29,10 @@ public:
     ObjType type() const override {return ObjType::Card;}
 };
 
+/*
+    Card Pool
+    Base class for
+*/
 class CardPool {
 protected:
     std::vector<ObjectId> cardPool;

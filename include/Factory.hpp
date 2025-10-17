@@ -3,6 +3,11 @@
 #include "ObjectPoolViews.hpp"
 #include "SceneObject.hpp"
 
+/*
+    Factory
+    Helper object for the Scene class, to help with instantiating objects in the object pool.
+*/
+
 class Factory {
     ObjectPoolSceneView& view;
 

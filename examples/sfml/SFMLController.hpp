@@ -18,11 +18,11 @@ public:
     SFMLController(EventManager& em);
     bool isBusy() override;
     void handleSFMLEvent(sf::RenderWindow& window, sf::Event& event, float dt);
+    
     // Render function; get relevant objects, and ID's, forward to the renderer
     void render(sf::RenderWindow& window, float dt);
-    /*
-        Event response functions
-    */
+
+    // Event response functions
     void createdObject(int ID, double x, double y) override;
     void movedCard(int cardID, int fromID, int toID) override;
     void setDescriptor(int ID, std::string str) override;
