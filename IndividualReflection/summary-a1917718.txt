@@ -1,0 +1,54 @@
+Luong Phuoc Nguyen (a1917718)
+
+Project: DeckWorks
+
+1. Individual and collaborative contributions
+This project was a collaborative effort, and my contributions focused on core architectural components, rendering logic, and final code 
+quality. For this project, what i have done so far:
+- ObjectPool implementation (Solo): I was responsible for designing and implementing the ObjectPool for the game. I chose this approach over 
+continuous instantiation and destruction of objects (like cards) to improve the performance. I realized that in most of the FPS games (such 
+as CSGO, Valorant), everything that the player sees and interacts with is a part of an object pool so that the player can move smoothly. 
+Generally, an object pool is a pool that stores the objects, so developers can use the objects from the pool, instead of creating and 
+deleting. By recycling existing objects, we reduce memory allocation overhead and prevent memory fragmentation, which is crucial for a 
+smooth running game. The ObjectPool serves as a central repository for all game objects, managed via unique IDs.
+- Hand rendering and layout (Solo): I implemented the logic for rendering a player's hand in SFMLRenderer and SFMLController. A key feature 
+of this work is the recalculateHandLayout function in SFMLController, which I designed to automatically and smoothly animate cards into an 
+evenly spaced, aesthetically pleasing arc whenever a card is added or removed. This ensures the player's hand is always organized and readable.
+- Scene and State logic (Collaborative): I worked closely with the team on the Scene and State classes. My specific contributions involved 
+integrating the ObjectPool via the ObjectPoolSceneView to give the game logic a safe way to access and manipulate game objects. I also helped 
+define the core moveCard logic within the Scene class, ensuring that moves were validated before being executed.
+- Final code refactoring (Solo): At the end stage of the project, I was responsible for refactoring the codebase. This involved separating 
+all class declarations (.hpp) from their implementations (.cpp), resolving the resulting circular dependencies with forward declarations, and 
+organizing the project into a clean and logical folder structure. This significantly improved compilation times and overall code maintainability.
+- Bug fixing and minor contributions (Collaborative): Throughout development, I assisted team members with debugging, particularly with 
+linker errors (undefined reference) that arose after the refactoring and with implementing smaller features within the SFML rendering code.
+
+2. Project development process
+Our team followed an agile process. We started by designing the core architecture (Application, Scene, Controller) together. From there, we 
+divided major components among ourselves. I took ownership of the ObjectPool and hand-rendering logic, while others focused on game-specific
+logic (like the Hi-Lo game) and the event management system with rendering stuff. We communicated daily through Discord, shared code through 
+GitHub, and frequently integrated our components to ensure they worked together correctly.
+
+3. Learning experience
+This project was a significant learning experience for me in C++ and game engine design. 
+- State machine pattern: Implementing the Scene/State system was my first practical application of a state machine. This is my first time 
+learning about this in game development. This effectively separates different phases of game logic (for example: dealing, awaiting input, 
+revealing) into manageable, self-contained classes, which prevents complex and bug-prone if/else chains. Although our state machine is pretty 
+simple due to the capabilities and difficulties of our design, I have gained a lot of insights about state machines and how we apply them in
+game development. 
+- Smart Pointers (std::unique_ptr): The ObjectPool relies heavily on std::unique_ptr to manage the lifetime of game objects. This taught me 
+the principles of modern C++ memory management, ensuring that resources are automatically and safely released without manual new and delete 
+calls, thus preventing memory leaks.
+- Software architecture: The biggest takeaway takeaway was understanding how to build a scabable architecture. For my previous project of 
+making chess using SFML, it was pretty simple because at that time I rendered the object directly. But this time, we divided the system into 
+many parts, we have Authoritative Events are data on the scene end; the scene controls the object pool directly. Request Events are what the 
+controller sends to the scene, to ask it to perform certain actions. It demonstrated how to decouple game logic from rendering and input 
+handling, making the entire system more flexible and easier to debug and extend.
+
+4. Reflection
+Our team communication and clear division of tasks were very effective. By assigning ownership of core components, each member could focus 
+and clearly understand their work and support each other when needed. As we divided the work logically, we could work on the game logic and 
+the rendering systems in parallel with minimal conflicts. On the other hands, one of the things that we could improve more is to splitting 
+the files logically at the beginning. Initially, we wrote all our code in the header files. This led to slow compilation times and complex 
+dependency issues later on. While the final refactoring fixed this, doing it from the start would have saved us time and prevented the linker 
+and circular dependency bugs we had to solve at the end.
