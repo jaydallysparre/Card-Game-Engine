@@ -20,10 +20,11 @@ By default, the engine has an example SFML-based frontend.
 
 # Installation (SFML build)
 ## Linux
-1. ensure you have SFML of the 2.x series installed to your system (currently, SFML defaults to version 3.x).
+1. ensure you have SFML of the 2.x version series installed on your system (SFML's latest version is 3.x).
 2. Build using the included makefile.
 
 ## Windows
 1. Download the release from the Releases tab.
 2. Unzip this file to a folder.
 3. Run `cge.exe`.
+
