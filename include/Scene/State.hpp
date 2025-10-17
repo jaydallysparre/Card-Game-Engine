@@ -3,9 +3,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "Scene.hpp"
 #include "Event.hpp"
 #include "EventManager.hpp"
+#include "ObjectPoolViews.hpp"
 
 /*
     State Class
@@ -14,7 +14,7 @@
     and respond to certain events.
 */
 
-struct Scene;
+class Scene;
 class State { 
 protected:
     // references to objects we want to communicate with

@@ -11,8 +11,6 @@ private:
     float dt;
 public:
     SFMLApplication() : window(sf::RenderWindow(sf::VideoMode(800, 600), "Card Game Engine")) {}
-
     void run() override;
-
     void handleEvents(sf::RenderWindow& window, sf::Event& event);
 };
